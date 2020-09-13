@@ -9,54 +9,66 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
+#include <Eigen/Dense>
+#include <Eigen/Core>
+
 
 // Visualization Toolkit (VTK)
 #include <vtkRenderWindow.h>
 
-typedef pcl::PointXYZRGBA PointT;
+typedef pcl::PointXYZRGB PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
 
 namespace Ui
 {
-  class PCLViewer;
+    class PCLViewer;
 }
 
 class PCLViewer : public QMainWindow
 {
-  Q_OBJECT
+    Q_OBJECT
 
-public:
-  explicit PCLViewer (QWidget *parent = 0);
-  ~PCLViewer ();
+    public:
+        explicit PCLViewer (QWidget *parent = 0);
+        ~PCLViewer ();
 
-public Q_SLOTS:
-  void
-  randomButtonPressed ();
+        public Q_SLOTS:
+            void
+            randomButtonPressed ();
 
-  void
-  RGBsliderReleased ();
+        void
+            RGBsliderReleased ();
 
-  void
-  pSliderValueChanged (int value);
+        void
+            pSliderValueChanged (int value);
 
-  void
-  redSliderValueChanged (int value);
+        void
+            xSliderValueChanged (int value);
 
-  void
-  greenSliderValueChanged (int value);
+        void
+            ySliderValueChanged (int value);
 
-  void
-  blueSliderValueChanged (int value);
+        void
+            zSliderValueChanged (int value);
 
-protected:
-  pcl::visualization::PCLVisualizer::Ptr viewer;
-  PointCloudT::Ptr cloud;
+        void
+            dxSliderValueChanged (int value);
+        void
+            dySliderValueChanged (int value);
+        void
+            dzSliderValueChanged (int value);
 
-  unsigned int red;
-  unsigned int green;
-  unsigned int blue;
+    protected:
+        pcl::visualization::PCLVisualizer::Ptr viewer;
+        PointCloudT::Ptr cloud;
+        PointCloudT::Ptr cloud_output;
 
-private:
-  Ui::PCLViewer *ui;
+        unsigned int red;
+        unsigned int green;
+        unsigned int blue;
+        std::vector<double> transformation;
+
+    private:
+        Ui::PCLViewer *ui;
 
 };

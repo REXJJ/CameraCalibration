@@ -16,6 +16,7 @@ find_package(Qt5 REQUIRED Widgets)
 
 find_package(VTK REQUIRED)
 find_package(PCL 1.7.1 REQUIRED)
+find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 # Fix a compilation bug under ubuntu 16.04 (Xenial)
 list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
@@ -27,4 +28,4 @@ set(project_SOURCES main.cpp pclviewer.cpp)
 
 add_executable(${PROJECT_NAME} ${project_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES} Qt5::Widgets)
+target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES} Eigen3::Eigen Qt5::Widgets)
