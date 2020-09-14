@@ -34,7 +34,8 @@ class PCLViewer : public QMainWindow
             // void
             // randomButtonPressed ();
 
-            void RGBsliderReleased ();
+            void ObjectsliderReleased ();
+            void CamerasliderReleased ();
 
         void pSliderValueChanged (int value);
 
@@ -49,6 +50,18 @@ class PCLViewer : public QMainWindow
         void dySliderValueChanged (int value);
 
         void dzSliderValueChanged (int value);
+        
+        void xCameraSliderValueChanged (int value);
+
+        void yCameraSliderValueChanged (int value);
+
+        void zCameraSliderValueChanged (int value);
+
+        void dxCameraSliderValueChanged (int value);
+
+        void dyCameraSliderValueChanged (int value);
+
+        void dzCameraSliderValueChanged (int value);
 
     protected:
         pcl::visualization::PCLVisualizer::Ptr viewer_;
@@ -56,7 +69,10 @@ class PCLViewer : public QMainWindow
         PointCloudT::Ptr cloud_output_;
         QTextBrowser *tb_;
         std::vector<double> transformation_;
-
+        std::vector<double> flange_transformation_;
+        std::vector<PointCloudT::Ptr> clouds_;
+        std::vector<PointCloudT::Ptr> cloud_outputs_;
+        std::vector<Eigen::MatrixXd> inverse_kinematics_;
     private:
         Ui::PCLViewer *ui_;
 

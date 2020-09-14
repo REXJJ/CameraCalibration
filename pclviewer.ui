@@ -170,6 +170,9 @@
        <height>29</height>
       </rect>
      </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
      <property name="maximum">
       <number>255</number>
      </property>
@@ -235,6 +238,9 @@
        <height>29</height>
       </rect>
      </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
      <property name="maximum">
       <number>255</number>
      </property>
@@ -275,8 +281,11 @@
        <height>29</height>
       </rect>
      </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
      <property name="maximum">
-      <number>255</number>
+      <number>256</number>
      </property>
      <property name="value">
       <number>0</number>
@@ -564,7 +573,7 @@
       <number>0</number>
      </property>
     </widget>
-    <widget class="QSlider" name="horizontalSlider_R_4">
+    <widget class="QSlider" name="horizontalSlider_X_Camera">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -572,6 +581,9 @@
        <width>160</width>
        <height>29</height>
       </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
      </property>
      <property name="maximum">
       <number>255</number>
@@ -629,7 +641,7 @@
       <number>0</number>
      </property>
     </widget>
-    <widget class="QSlider" name="horizontalSlider_G_3">
+    <widget class="QSlider" name="horizontalSlider_Y_Camera">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -637,6 +649,9 @@
        <width>160</width>
        <height>29</height>
       </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
      </property>
      <property name="maximum">
       <number>255</number>
@@ -669,7 +684,7 @@
       <string>z</string>
      </property>
     </widget>
-    <widget class="QSlider" name="horizontalSlider_B_3">
+    <widget class="QSlider" name="horizontalSlider_Z_Camera">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -677,6 +692,9 @@
        <width>160</width>
        <height>29</height>
       </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
      </property>
      <property name="maximum">
       <number>255</number>
@@ -710,7 +728,7 @@
       <number>0</number>
      </property>
     </widget>
-    <widget class="QSlider" name="horizontalSlider_dx_3">
+    <widget class="QSlider" name="horizontalSlider_dx_Camera">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -772,7 +790,7 @@
       <string>rotx</string>
      </property>
     </widget>
-    <widget class="QSlider" name="horizontalSlider_dy_3">
+    <widget class="QSlider" name="horizontalSlider_dy_Camera">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -858,7 +876,7 @@
       <string>rotz</string>
      </property>
     </widget>
-    <widget class="QSlider" name="horizontalSlider_dz_3">
+    <widget class="QSlider" name="horizontalSlider_dz_Camera">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -913,9 +931,9 @@
     <property name="geometry">
      <rect>
       <x>1340</x>
-      <y>240</y>
+      <y>61</y>
       <width>256</width>
-      <height>192</height>
+      <height>461</height>
      </rect>
     </property>
     <property name="html">
@@ -1049,6 +1067,102 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>239</x>
      <y>322</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_X_Camera</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>lcdNumber_x_3</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>97</x>
+     <y>433</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>220</x>
+     <y>432</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_Y_Camera</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>lcdNumber_y_3</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>192</x>
+     <y>473</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>230</x>
+     <y>473</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_Z_Camera</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>lcdNumber_z_3</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>517</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>231</x>
+     <y>509</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_dx_Camera</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>lcdNumber_dx_3</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>556</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>557</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_dy_Camera</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>lcdNumber_dy_3</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>202</x>
+     <y>593</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>226</x>
+     <y>593</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_dz_Camera</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>lcdNumber_dz_3</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>207</x>
+     <y>630</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>226</x>
+     <y>630</y>
     </hint>
    </hints>
   </connection>
