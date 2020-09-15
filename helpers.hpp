@@ -10,6 +10,7 @@
 #include <Eigen/Core>
 
 using namespace std;
+using namespace Eigen;
 
 namespace Helpers
 {
@@ -137,4 +138,106 @@ namespace Helpers
             viewer->addLine<pcl::PointXYZ> (pt1,pt2,"liney"+to_string(y));
         }
     }
+   
+    Eigen::Affine3f getAffineMatrix(Eigen::MatrixXd &transformation)
+    {
+        Eigen::Affine3f temp;
+        for(int k=0;k<3;k++)
+            for(int j=0;j<4;j++)
+                temp(k,j) = transformation(k,j);
+        return temp;
+    }
+
+    void addClouds(vector<PointCloudT::Ptr>& clouds,vector<PointCloudT::Ptr>& cloud_outputs,vector<MatrixXd>& iks,vector<double> & flange_transformation,pcl::visualization::PCLVisualizer::Ptr viewer)
+    {
+        if(clouds.size()>iks.size())
+        {
+            throw "Size Mismatch Error.\n";
+        }
+        for(int i=0;i<clouds.size();i++)
+        {
+            cloud_outputs[i]->clear();
+            Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation);
+            Eigen::MatrixXd transformation = iks[i]*cam_T_flange;
+            transformPointCloud<pcl::PointXYZRGB>(clouds[i],cloud_outputs[i],transformation);
+            viewer->addPointCloud (cloud_outputs[i], "cloud"+to_string(i));
+        }
+    }
+
+
+
+    void updateClouds(vector<PointCloudT::Ptr>& clouds,vector<PointCloudT::Ptr>& cloud_outputs,vector<MatrixXd>& iks,vector<double> & flange_transformation,pcl::visualization::PCLVisualizer::Ptr viewer,vector<bool>& selected)
+    {
+        if(clouds.size()>iks.size())
+        {
+            throw "Size Mismatch Error.\n";
+        }
+        for(int i=0;i<clouds.size();i++)
+        {
+            cloud_outputs[i]->clear();
+            Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation);
+            Eigen::MatrixXd transformation = iks[i]*cam_T_flange;
+            if(selected[i])
+            {
+                transformPointCloud<pcl::PointXYZRGB>(clouds[i],cloud_outputs[i],transformation);
+            }
+            viewer->updatePointCloud (cloud_outputs[i], "cloud"+to_string(i));
+        }
+    }
+
+    vector<MatrixXd> readTransformations(string filename)
+    {
+        vector<MatrixXd> transformations;
+        ifstream file(filename);
+        MatrixXd mat=MatrixXd::Zero(4,4);
+        string line;
+        int count=0;
+        while(true)
+        {
+            for(int i=0;i<4;i++)
+            {
+                getline(file,line);
+                if(line.size()==0)
+                    goto end;
+                vector<string> v;
+                split(v,line,boost::is_any_of(","));
+                for(int j=0;j<v.size();j++)
+                    mat(i,j)=stof(v[j]);
+            }
+            transformations.push_back(mat);
+        }
+end:
+        return transformations;
+    }
+
+    string getErrorMetrics(vector<PointCloudT::Ptr> clouds, PointCloudT::Ptr object)
+    {
+        string html = "<table><tr><th>Cloud Id</th><th>Avg Error</th></tr>";
+        for(int i=0;i<clouds.size();i++)
+        {
+            html+="<tr><td>"+to_string(i)+"</td><td>INF</td></tr>";
+        }
+        html+="</table>";
+        return html;
+    }
+    
+    void addObjectToSpace(PointCloudT::Ptr cloud,PointCloudT::Ptr output,vector<double>& transformation,pcl::visualization::PCLVisualizer::Ptr viewer)
+    {
+        output->clear();
+        Eigen::MatrixXd part_T_base = vectorToTransformationMatrix(transformation);
+        transformPointCloud<pcl::PointXYZRGB>(cloud,output,part_T_base);
+        viewer->addPointCloud (output, "object");
+    }
+
+    void updateObjectToSpace(PointCloudT::Ptr cloud,PointCloudT::Ptr output,vector<double>& transformation,pcl::visualization::PCLVisualizer::Ptr viewer,bool selected=true)
+    {
+        output->clear();
+        Eigen::MatrixXd part_T_base = vectorToTransformationMatrix(transformation);
+        if(selected)
+        {
+            transformPointCloud<pcl::PointXYZRGB>(cloud,output,part_T_base);
+        }
+        viewer->updatePointCloud (output, "object");
+    }
+
 };

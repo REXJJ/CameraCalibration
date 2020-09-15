@@ -4,6 +4,7 @@
 // Qt
 #include <QMainWindow>
 #include <QTextBrowser>
+#include <QStandardItemModel>
 // Point Cloud Library
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -63,6 +64,13 @@ class PCLViewer : public QMainWindow
 
         void dzCameraSliderValueChanged (int value);
 
+        void modelChanged (QStandardItem *item);
+
+        void modelAxesChanged (QStandardItem *item);
+
+        void updateAxes();
+
+
     protected:
         pcl::visualization::PCLVisualizer::Ptr viewer_;
         PointCloudT::Ptr cloud_;
@@ -73,6 +81,10 @@ class PCLViewer : public QMainWindow
         std::vector<PointCloudT::Ptr> clouds_;
         std::vector<PointCloudT::Ptr> cloud_outputs_;
         std::vector<Eigen::MatrixXd> inverse_kinematics_;
+        std::vector<QStandardItem*> items_; 
+        std::vector<bool> selected_clouds_;
+        std::vector<bool> selected_axes_;
+
     private:
         Ui::PCLViewer *ui_;
 

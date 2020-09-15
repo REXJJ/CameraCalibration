@@ -933,7 +933,7 @@
       <x>1340</x>
       <y>61</y>
       <width>256</width>
-      <height>461</height>
+      <height>201</height>
      </rect>
     </property>
     <property name="html">
@@ -945,6 +945,52 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="overwriteMode">
      <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QListView" name="listView">
+    <property name="geometry">
+     <rect>
+      <x>1340</x>
+      <y>340</y>
+      <width>256</width>
+      <height>71</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>1390</x>
+      <y>310</y>
+      <width>141</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Select Point Clouds</string>
+    </property>
+   </widget>
+   <widget class="QListView" name="listView_2">
+    <property name="geometry">
+     <rect>
+      <x>1340</x>
+      <y>480</y>
+      <width>256</width>
+      <height>71</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>1380</x>
+      <y>450</y>
+      <width>161</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Select coordinate axes</string>
     </property>
    </widget>
   </widget>
