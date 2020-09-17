@@ -185,28 +185,43 @@ namespace Helpers
         }
     }
 
-    vector<MatrixXd> readTransformations(string filename)
+    vector<MatrixXd> readTransformations(string filename,bool affine=false)
     {
         vector<MatrixXd> transformations;
         ifstream file(filename);
         MatrixXd mat=MatrixXd::Zero(4,4);
-        string line;
-        int count=0;
-        while(true)
+        if(affine==false)
         {
-            for(int i=0;i<4;i++)
+            while(true)
             {
-                getline(file,line);
-                if(line.size()==0)
-                    goto end;
-                vector<string> v;
-                split(v,line,boost::is_any_of(","));
-                for(int j=0;j<v.size();j++)
-                    mat(i,j)=stof(v[j]);
+                string line;
+                for(int i=0;i<4;i++)
+                {
+                    getline(file,line);
+                    if(line.size()==0)
+                        break;
+                    vector<string> v;
+                    split(v,line,boost::is_any_of(","));
+                    for(int j=0;j<v.size();j++)
+                        mat(i,j)=stof(v[j]);
+                }
+                transformations.push_back(mat);
             }
-            transformations.push_back(mat);
         }
-end:
+        else
+        {
+            string trans;
+            while(getline(file,trans)&&trans.size())
+            {
+                vector<string> coords_str;
+                boost::split(coords_str, trans, boost::is_any_of(","));
+                vector<double> coords;
+                for(auto x:coords_str)
+                    coords.push_back(stof(x)/1000.0);
+                auto mat = vectorToTransformationMatrix(coords);
+                transformations.push_back(mat);
+            }
+        }
         return transformations;
     }
 

@@ -2,19 +2,19 @@
 <data>
     <camera>
         <transformations>
-            <transformation>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/transformations_1.txt</transformation>
+            <transformation>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/CameraCalibration/Part_1/Base_To_Flange.txt</transformation>
         </transformations>
         <clouds>
-            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/DepthMapFusionUtils/build/cleaned1.pcd</pointcloud>
-            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/DepthMapFusionUtils/build/cleaned2.pcd</pointcloud>
-            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/DepthMapFusionUtils/build/cleaned3.pcd</pointcloud>
-            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/DepthMapFusionUtils/build/cleaned4.pcd</pointcloud>
-            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/DepthMapFusionUtils/build/cleaned5.pcd</pointcloud>
+            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/CameraCalibration/Part_1/pointcloud/pos_1.ply</pointcloud>
+            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/CameraCalibration/Part_1/pointcloud/pos_2.ply</pointcloud>
+            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/CameraCalibration/Part_1/pointcloud/pos_3.ply</pointcloud>
+            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/CameraCalibration/Part_1/pointcloud/pos_4.ply</pointcloud>
+            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/CameraCalibration/Part_1/pointcloud/pos_5.ply</pointcloud>
         </clouds>
     </camera>
     <scan>
         <clouds>
-            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/original.ply</pointcloud>
+            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/CameraCalibration/Part_1/part_1.xyz</pointcloud>
         </clouds>
     </scan>
 </data>

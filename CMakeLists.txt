@@ -18,6 +18,10 @@ find_package(VTK REQUIRED)
 find_package(PCL 1.7.1 REQUIRED)
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
 # Fix a compilation bug under ubuntu 16.04 (Xenial)
 list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
 

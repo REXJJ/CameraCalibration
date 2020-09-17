@@ -9,6 +9,7 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/kdtree/kdtree_flann.h>
 // Eigen
 #include <Eigen/Dense>
 #include <Eigen/Core>
@@ -35,8 +36,8 @@ class PCLViewer : public QMainWindow
             // void
             // randomButtonPressed ();
 
-            void ObjectsliderReleased ();
-            void CamerasliderReleased ();
+            void objectSliderReleased ();
+            void cameraSliderReleased ();
 
         void pSliderValueChanged (int value);
 
@@ -70,6 +71,9 @@ class PCLViewer : public QMainWindow
 
         void updateAxes();
 
+        void enableErrorCalculation();
+
+        void updateErrorTable();
 
     protected:
         pcl::visualization::PCLVisualizer::Ptr viewer_;
@@ -84,6 +88,9 @@ class PCLViewer : public QMainWindow
         std::vector<QStandardItem*> items_; 
         std::vector<bool> selected_clouds_;
         std::vector<bool> selected_axes_;
+        bool calculate_error_;
+        pcl::KdTreeFLANN<pcl::PointXYZ> object_tree_; 
+
 
     private:
         Ui::PCLViewer *ui_;
