@@ -216,14 +216,18 @@ namespace Helpers
                 vector<string> coords_str;
                 boost::split(coords_str, trans, boost::is_any_of(","));
                 vector<double> coords;
-                for(auto x:coords_str)
-                    coords.push_back(stof(x)/1000.0);
+                for(int i=0;i<coords_str.size();i++)
+                    if(i<3)
+                        coords.push_back(stof(coords_str[i])/1000.0);
+                    else
+                        coords.push_back(stof(coords_str[i]));
                 auto mat = vectorToTransformationMatrix(coords);
                 transformations.push_back(mat);
             }
         }
         return transformations;
     }
+
 
     string getErrorMetrics(vector<PointCloudT::Ptr> clouds, PointCloudT::Ptr object)
     {
