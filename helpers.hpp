@@ -125,6 +125,7 @@ namespace Helpers
             pt2.y = ymin;
             pt2.z = 0;
             viewer->addLine<pcl::PointXYZ> (pt1,pt2,"linex"+to_string(x));
+			viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, 1.3, "linex"+to_string(x));
         }
         for(double y=ymin;y<=ymax;y+=gridsize)
         {
@@ -136,6 +137,7 @@ namespace Helpers
             pt2.y = y;
             pt2.z = 0;
             viewer->addLine<pcl::PointXYZ> (pt1,pt2,"liney"+to_string(y));
+			viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, 1.3, "liney"+to_string(y));
         }
     }
    
@@ -150,6 +152,8 @@ namespace Helpers
 
     void addClouds(vector<PointCloudT::Ptr>& clouds,vector<PointCloudT::Ptr>& cloud_outputs,vector<MatrixXd>& iks,vector<double> & flange_transformation,pcl::visualization::PCLVisualizer::Ptr viewer)
     {
+        cout<<"Inside adding cloud"<<endl;
+		cout<<clouds.size()<<" "<<iks.size()<<endl;
         if(clouds.size()>iks.size())
         {
             throw "Size Mismatch Error.\n";
@@ -161,6 +165,7 @@ namespace Helpers
             Eigen::MatrixXd transformation = iks[i]*cam_T_flange;
             transformPointCloud<pcl::PointXYZRGB>(clouds[i],cloud_outputs[i],transformation);
             viewer->addPointCloud (cloud_outputs[i], "cloud"+to_string(i));
+            cout<<"Adding cloud: "<<i<<endl;
         }
     }
 
@@ -187,6 +192,7 @@ namespace Helpers
 
     vector<MatrixXd> readTransformations(string filename,bool affine=false)
     {
+		cout<<"Inside transformation reader"<<endl;
         vector<MatrixXd> transformations;
         ifstream file(filename);
         MatrixXd mat=MatrixXd::Zero(4,4);
@@ -210,6 +216,7 @@ namespace Helpers
         }
         else
         {
+			cout<<"Here"<<endl;
             string trans;
             while(getline(file,trans)&&trans.size())
             {
@@ -221,6 +228,8 @@ namespace Helpers
                         coords.push_back(stof(coords_str[i])/1000.0);
                     else
                         coords.push_back(stof(coords_str[i]));
+				for(auto x:coords)
+					cout<<x<<endl;
                 auto mat = vectorToTransformationMatrix(coords);
                 transformations.push_back(mat);
             }
@@ -250,13 +259,23 @@ namespace Helpers
 
     void updateObjectToSpace(PointCloudT::Ptr cloud,PointCloudT::Ptr output,vector<double>& transformation,pcl::visualization::PCLVisualizer::Ptr viewer,bool selected=true)
     {
-        output->clear();
-        Eigen::MatrixXd part_T_base = vectorToTransformationMatrix(transformation);
-        if(selected)
-        {
+		output->clear();
+		Eigen::MatrixXd part_T_base = vectorToTransformationMatrix(transformation);
+		for(int i=0;i<4;i++)
+		{
+			for(int j=0;j<4;j++)
+				cout<<part_T_base(i,j)<<" ";
+			cout<<endl;
+		}
+		if(selected)
+		{
             transformPointCloud<pcl::PointXYZRGB>(cloud,output,part_T_base);
         }
         viewer->updatePointCloud (output, "object");
     }
 
+	constexpr double radTodeg(double rad)
+	{
+		return (rad/3.14159)*180;
+	}
 };

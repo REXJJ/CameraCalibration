@@ -91,8 +91,7 @@ class PCLViewer : public QMainWindow
         bool calculate_error_;
         pcl::KdTreeFLANN<pcl::PointXYZ> object_tree_; 
 
-
     private:
         Ui::PCLViewer *ui_;
-
+        void getInputs();
 };
