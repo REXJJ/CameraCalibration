@@ -86,7 +86,7 @@ void PCLViewer::updateAxes()
 	}
 	if(selected_axes_[1])
 	{
-		if(selected_clouds_[selected_clouds_.size()-1])
+		if(selected_clouds_[selected_clouds_.size()-2])
 		{
 			Eigen::MatrixXd part_T_base = vectorToTransformationMatrix(transformation_);
 			addCoordinateAxes(part_T_base ,viewer_,"object");
@@ -331,21 +331,53 @@ PCLViewer::~PCLViewer ()
 	delete ui_;
 }
 
+vector<double> getTransVector(boost::property_tree::ptree &pt,string s)
+{
+    string angle_metric = pt.get<std::string>(s+".angle","radian");
+    string camera_approx_trans_metric = pt.get<std::string>(s+".metric","m");
+    double cam_approx_scale = 1.0;
+    if(camera_approx_trans_metric=="cm")
+        cam_approx_scale = 100.0;
+    else if(camera_approx_trans_metric=="mm")
+        cam_approx_scale=1000.0;
+    string approx_transformation = pt.get<std::string>(s+".value","0,0,0,0,0,0");
+    cout<<approx_transformation<<endl;
+    vector<string> coords_str;
+    boost::split(coords_str, approx_transformation , boost::is_any_of(","));
+    vector<double> coords;
+    for(int i=0;i<coords_str.size();i++)
+        if(i<3)
+            coords.push_back(stof(coords_str[i])/cam_approx_scale);
+        else
+        {
+            double value = stof(coords_str[i]);
+            if(angle_metric=="degree")
+                value=degreeToRadian(value);
+            coords.push_back(value);
+        }
+
+    for(auto x:coords)
+        cout<<x<<" ";
+    cout<<endl;
+    return coords;
+}
+
 void PCLViewer::getInputs()
 {
 	// Reading the pointclouds, sensor scans and the transformations from files using XML config file.
 	ifstream file;
-	file.open("/home/rex/REX_WS/Catkin_WS/src/CameraCalibration/config/config.xml");
-	// file.open("/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/CameraCalibration/config/config.xml");
+	// file.open("/home/rex/REX_WS/Catkin_WS/src/CameraCalibration/config/config.xml");
+	file.open("/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/CameraCalibration/config/config.xml");
 	using boost::property_tree::ptree;
 	ptree pt;
 	read_xml(file, pt);
+    string camera_metric = pt.get<std::string>("data.camera.metric","m");
+    cout<<"------------- "<<camera_metric<<endl;
 	for (const auto &cloud : pt.get_child("data.camera.clouds"))
 	{
 		string filename = cloud.second.data();
 		PointCloudT::Ptr pointcloud(new PointCloudT);
-        readPointCloud(filename,pointcloud);
-
+        readPointCloud(filename,pointcloud,camera_metric);
 		PointCloudT::Ptr temp_cloud(new PointCloudT);
 		for(int i=0;i<pointcloud->points.size();i++)
 		{
@@ -371,17 +403,18 @@ void PCLViewer::getInputs()
 		cloud_outputs_.push_back(pointcloud_output);
 		cout<<filename<<endl;
 	}
-	for(const auto &transformation : pt.get_child("data.camera.transformations"))
-	{
-		string ik_filename = transformation.second.data();
-		cout<<ik_filename<<endl;
-		inverse_kinematics_ = readTransformations(ik_filename,true);
-	}
+    string ik_filename  = pt.get<std::string>("data.camera.transformations.inverse_kinematics");
+    cout<<ik_filename<<endl;
+    inverse_kinematics_ = readTransformations(ik_filename,true);
 	cout<<"Transformations Read"<<endl;
+
+    //Reading the scan cloud.
+    string object_metric = pt.get<std::string>("data.scan.metric","m");
+    cout<<"------------- "<<object_metric <<endl;
 	for(const auto &cloud :pt.get_child("data.scan.clouds"))
 	{
             string filename = cloud.second.data();
-            readPointCloud(filename,cloud_);
+            readPointCloud(filename,cloud_,object_metric );
 	}
     //Reflecting the cloud here. TODO: Need to remove this.
 	Eigen::MatrixXd reflect_cloud= Eigen::MatrixXd::Identity(4,4);
@@ -406,6 +439,11 @@ void PCLViewer::getInputs()
 
     cout<<object_tree_vec_.size()<<" trees are added."<<endl;
 
+    double scale = 1.0;
+    if(object_metric=="mm")
+        scale = 1000.0;
+    else if(object_metric=="cm")
+        scale = 100.0;
 	//Reading locations of the object.
 	object_location_.reset(new PointCloudT);
 	for(const auto &location :pt.get_child("data.scan.location"))
@@ -414,13 +452,21 @@ void PCLViewer::getInputs()
 		vector<string> coords;
 		boost::split(coords, loc , boost::is_any_of(","));
 		pcl::PointXYZRGB pt;
-		pt.x = stof(coords[0])/1000.0;
-		pt.y = stof(coords[1])/1000.0;
-		pt.z = stof(coords[2])/1000.0;
+		pt.x = stof(coords[0])/scale;
+		pt.y = stof(coords[1])/scale;
+		pt.z = stof(coords[2])/scale;
 		pt.r = pt.g = pt.b =0;
 		object_location_->points.push_back(pt);
 	}
 	cout<<"Scan Location Read"<<endl;
+    //Reading Default Values;
+    auto transformation_initial_flange = getTransVector(pt,"data.scan.transformations.approximate_transformation");
+    for(int i=0;i<transformation_initial_flange.size();i++)
+        transformation_[i]=transformation_initial_flange[i];
+
+    auto transformation_initial_object= getTransVector(pt,"data.camera.transformations.approximate_transformation");
+    for(int i=0;i<transformation_initial_object.size();i++)
+        flange_transformation_[i]=transformation_initial_object[i];
 }
 
 void PCLViewer::setupViz()
@@ -536,6 +582,33 @@ void PCLViewer::addWidgets()
 
 	connect (ui_->checkBox,  SIGNAL (clicked ()), this, SLOT (enableErrorCalculation()));
 	cout<<"QT components loaded"<<endl;
+
+    ui_->horizontalSlider_X_Object->setValue(transformation_[0]*100);
+    ui_->label_10->setNum(transformation_[0]*100);
+    ui_->horizontalSlider_Y_Object->setValue(transformation_[1]*100);
+    ui_->label_11->setNum(transformation_[1]*100);
+    ui_->horizontalSlider_Z_Object->setValue(transformation_[2]*100);
+    ui_->label_12->setNum(transformation_[2]*100);
+    ui_->horizontalSlider_dx_Object->setValue(radTodeg(transformation_[5]));
+    ui_->label_13->setNum(radTodeg(transformation_[5]));
+    ui_->horizontalSlider_dy_Object->setValue(radTodeg(transformation_[4]));
+    ui_->label_14->setNum(radTodeg(transformation_[4]));
+    ui_->horizontalSlider_dz_Object->setValue(radTodeg(transformation_[3]));
+    ui_->label_21->setNum(radTodeg(transformation_[3]));
+
+
+    ui_->horizontalSlider_X_Camera->setValue(flange_transformation_[0]*100);
+    ui_->label_22->setNum(flange_transformation_[0]*100);
+    ui_->horizontalSlider_Y_Camera->setValue(flange_transformation_[1]*100);
+    ui_->label_23->setNum(flange_transformation_[1]*100);
+    ui_->horizontalSlider_Z_Camera->setValue(flange_transformation_[2]*100);
+    ui_->label_24->setNum(flange_transformation_[2]*100);
+    ui_->horizontalSlider_dx_Camera->setValue(radTodeg(flange_transformation_[5]));
+    ui_->label_25->setNum(radTodeg(flange_transformation_[5]));
+    ui_->horizontalSlider_dy_Camera->setValue(radTodeg(flange_transformation_[4]));
+    ui_->label_26->setNum(radTodeg(flange_transformation_[4]));
+    ui_->horizontalSlider_dz_Camera->setValue(radTodeg(flange_transformation_[3]));
+    ui_->label_27->setNum(radTodeg(flange_transformation_[3]));
 
 	// Generate html for the table.
 	tb_ = ui_->textBrowser;

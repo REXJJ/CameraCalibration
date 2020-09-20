@@ -136,8 +136,13 @@ namespace TransformationUtilities
 namespace InputUtilities
 {
 
-    void readPointCloud(string filename, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
+    void readPointCloud(string filename, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,string metric="m")
     {
+        double scale = 1.0;
+        if(metric=="mm")
+            scale=1000.0;
+        else if(metric=="cm")
+            scale=100.0;
         vector<string> result; 
         boost::split(result,filename, boost::is_any_of("."));
         string type = result[result.size()-1];
@@ -151,11 +156,26 @@ namespace InputUtilities
                 PCL_ERROR ("Couldn't read file for base. \n");
                 throw;
             }
+            if(metric!="m")
+                for(auto &pt:cloud->points)
+                {
+                    pt.x=pt.x/scale;
+                    pt.y=pt.y/scale;
+                    pt.z=pt.z/scale;
+                }
         }
         else if(type=="ply")
         {
             pcl::PLYReader reader;
             reader.read(filename, *cloud);
+            if(metric!="m")
+                for(auto &pt:cloud->points)
+                {
+                    pt.x=pt.x/scale;
+                    pt.y=pt.y/scale;
+                    pt.z=pt.z/scale;
+                }
+
         }
         else if(type=="xyz")
         {
@@ -172,9 +192,9 @@ namespace InputUtilities
                 vector<string> coords;
                 boost::split(coords, temp, boost::is_any_of(","));
                 pcl::PointXYZRGB pt;
-                pt.x = stof(coords[0])/1000.0;
-                pt.y = stof(coords[1])/1000.0;
-                pt.z = stof(coords[2])/1000.0;
+                pt.x = stof(coords[0])/scale;
+                pt.y = stof(coords[1])/scale;
+                pt.z = stof(coords[2])/scale;
                 pt.r = 0; 
                 pt.g = 0;
                 pt.b = 0;
@@ -200,10 +220,16 @@ namespace InputUtilities
 
     vector<MatrixXd> readTransformations(string filename,bool affine=false)
     {
+        string metric="mm";
 		cout<<"Inside transformation reader"<<endl;
         vector<MatrixXd> transformations;
         ifstream file(filename);
         MatrixXd mat=MatrixXd::Zero(4,4);
+        double scale = 1.0;
+        if(metric=="mm")
+            scale=1000.0;
+        else if(metric=="cm")
+            scale=100.0;
         if(affine==false)
         {
             while(true)
@@ -232,7 +258,7 @@ namespace InputUtilities
                 vector<double> coords;
                 for(int i=0;i<coords_str.size();i++)
                     if(i<3)
-                        coords.push_back(stof(coords_str[i])/1000.0);
+                        coords.push_back(stof(coords_str[i])/scale);
                     else
                         coords.push_back(stof(coords_str[i]));
                 auto mat = TransformationUtilities::vectorToTransformationMatrix(coords);
