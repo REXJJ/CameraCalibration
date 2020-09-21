@@ -6,21 +6,13 @@
             <approximate_transformation>
                 <angle>degree</angle>
                 <metric>cm</metric>
-                <value>2,8,8,178,-1,93</value>
+                <value>0,0,0,0,0,0</value>
             </approximate_transformation>
         </transformations>
         <metric>m</metric>
         <clouds>
             <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_1.ply</pointcloud>
             <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_2.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_3.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_4.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_5.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_6.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_7.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_8.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_9.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_10.ply</pointcloud>
         </clouds>
     </camera>
     <scan>
@@ -43,3 +35,4 @@
         </location>
     </scan>
 </data>
+                <value>2,8,8,178,-1,93</value>

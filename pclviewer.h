@@ -5,6 +5,9 @@
 #include <QMainWindow>
 #include <QTextBrowser>
 #include <QStandardItemModel>
+#include <QSlider>
+#include <QLabel>
+#include <QMessageBox>
 // Point Cloud Library
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -77,6 +80,17 @@ class PCLViewer : public QMainWindow
 
         void updateErrorTable();
 
+        void transResolutionChanged(int value);
+
+        void rotResolutionChanged(int value);
+
+        void algorithmSelected(int value);
+
+        void applyAlgorithm();
+
+        void pointPickingEventOccurred (const pcl::visualization::PointPickingEvent& event, void* viewer_void);
+
+
     protected:
         pcl::visualization::PCLVisualizer::Ptr viewer_;
         PointCloudT::Ptr cloud_;
@@ -85,6 +99,8 @@ class PCLViewer : public QMainWindow
         QTextBrowser *tb_;
         std::vector<double> transformation_;
         std::vector<double> flange_transformation_;
+        std::vector<double> transformation_initial_;
+        std::vector<double> flange_transformation_initial_;
         std::vector<PointCloudT::Ptr> clouds_;
         std::vector<PointCloudT::Ptr> cloud_outputs_;
         std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloud_downsampled_;
@@ -96,13 +112,21 @@ class PCLViewer : public QMainWindow
         pcl::KdTreeFLANN<pcl::PointXYZ> object_tree_; 
         std::vector<pcl::KdTreeFLANN<pcl::PointXYZ>> object_tree_vec_; 
         std::vector<pcl::search::KdTree<pcl::PointXYZ>::Ptr> object_kdtree_vec_;  
+        double translation_resolution_;
+        double rotation_resolution_;
+        std::vector<std::vector<double>> points_1_;//Points in the target frame
+        std::vector<std::vector<double>> points_2_;
+        bool apply_svd_;
 
     private:
         Ui::PCLViewer *ui_;
         QStandardItemModel *model_clouds_;
         QStandardItemModel *model_axes_;
+        int algorithm_;
         void getInputs();
         void setupViz();
         void setupInterface();
         void addWidgets();
+        double updateTranslationControls(QSlider*,QLabel*,QLabel*,double);
+        double  updateRotationControls(QSlider*,QLabel*,QLabel*,double);
 };

@@ -16,18 +16,7 @@ using namespace TransformationUtilities;
 using namespace InputUtilities;
 using namespace InterfaceUtilities;
 
-void pointPickingEventOccurred (const pcl::visualization::PointPickingEvent& event, void* viewer_void)
-{
-	std::cout << "[INOF] Point picking event occurred." << std::endl;
 
-	float x, y, z;
-	if (event.getPointIndex () == -1)
-	{
-		return;
-	}
-	event.getPoint(x, y, z);
-	std::cout << "[INOF] Point coordinate ( " << x << ", " << y << ", " << z << ")" << std::endl;
-}
 
 PCLViewer::PCLViewer (QWidget *parent) :
 	QMainWindow (parent),
@@ -40,7 +29,13 @@ PCLViewer::PCLViewer (QWidget *parent) :
 	cloud_output_.reset (new PointCloudT);
 	transformation_ = std::vector<double>(6,0);
 	flange_transformation_ = std::vector<double>(6,0);
+	transformation_initial_ = std::vector<double>(6,0);
+	flange_transformation_initial_ = std::vector<double>(6,0);
+    translation_resolution_ = 1.0;
+    rotation_resolution_ = 2.0;
 	calculate_error_= false;
+    apply_svd_ = false;
+    algorithm_ = 0;
 	viewer_.reset (new pcl::visualization::PCLVisualizer ("viewer", false));
 
     getInputs();
@@ -52,6 +47,8 @@ PCLViewer::PCLViewer (QWidget *parent) :
 void PCLViewer::enableErrorCalculation()
 {
 	calculate_error_=!calculate_error_;
+    if(calculate_error_)
+        updateErrorTable();
 }
 
 void addCoordinateAxes(Eigen::MatrixXd& transformation,pcl::visualization::PCLVisualizer::Ptr viewer,string id)
@@ -161,7 +158,6 @@ void PCLViewer::updateErrorTable()
 	string htmlString = "<!DOCTYPE html><htmt><body><style>table, th, td { border: 1px solid black;border-collapse: collapse;}</style><center>Error Metrics</center><table><tr><th>Cloud Id</th><th>Avg Error</th><th>Max Error</th></tr>";
     vector<double> error_avg(clouds_.size(),1.0/0.0);
     vector<double> error_max(clouds_.size(),1.0/0.0);
-    //TODO: Try parfor
 #pragma omp parallel
 #pragma omp for
     for(int j=0;j<clouds_.size();j++)
@@ -252,6 +248,7 @@ PCLViewer::cameraSliderReleased ()
 	void
 PCLViewer::pSliderValueChanged (int value)
 {
+    ui_->label_30->setNum(value);
 	viewer_->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, value, "object");
 	for(int i=0;i<clouds_.size();i++)
 		viewer_->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, value, "cloud"+to_string(i+1));
@@ -263,67 +260,67 @@ PCLViewer::pSliderValueChanged (int value)
 	void
 PCLViewer::xSliderValueChanged (int value)
 {
-	transformation_[0]=value/100.0;
+	transformation_[0]=updateTranslationControls(ui_->horizontalSlider_X_Object,ui_->label_10,ui_->label_33,transformation_initial_[0]);
 }
 
 	void
 PCLViewer::ySliderValueChanged (int value)
 {
-	transformation_[1]=value/100.0;
+	transformation_[1]=updateTranslationControls(ui_->horizontalSlider_Y_Object,ui_->label_11,ui_->label_34,transformation_initial_[1]);
 }
 
 	void
 PCLViewer::zSliderValueChanged (int value)
 {
-	transformation_[2]=value/100.0;
+	transformation_[2]=updateTranslationControls(ui_->horizontalSlider_Z_Object,ui_->label_12,ui_->label_35,transformation_initial_[2]);
 }
 	void
 PCLViewer::dxSliderValueChanged (int value)
 {
-	transformation_[5]=degreeToRadian(value);
+	transformation_[5]=updateRotationControls(ui_->horizontalSlider_dx_Object,ui_->label_13,ui_->label_36,transformation_initial_[5]);
 }
 	void
 PCLViewer::dySliderValueChanged (int value)
 {
-	transformation_[4]=degreeToRadian(value);
+	transformation_[4]=updateRotationControls(ui_->horizontalSlider_dy_Object,ui_->label_14,ui_->label_37,transformation_initial_[4]);
 }
 	void
 PCLViewer::dzSliderValueChanged (int value)
 {
-	transformation_[3]=degreeToRadian(value);
+	transformation_[3]=updateRotationControls(ui_->horizontalSlider_dz_Object,ui_->label_21,ui_->label_38,transformation_initial_[3]);
 }
 
 	void
 PCLViewer::xCameraSliderValueChanged (int value)
 {
-	flange_transformation_[0]=value/100.0;
+	flange_transformation_[0]=updateTranslationControls(ui_->horizontalSlider_X_Camera,ui_->label_22,ui_->label_39,flange_transformation_initial_[0]);
 }
 
 	void
 PCLViewer::yCameraSliderValueChanged (int value)
 {
-	flange_transformation_[1]=value/100.0;
+	flange_transformation_[1]=updateTranslationControls(ui_->horizontalSlider_Y_Camera,ui_->label_23,ui_->label_40,flange_transformation_initial_[1]);
 }
 
 	void
 PCLViewer::zCameraSliderValueChanged (int value)
 {
-	flange_transformation_[2]=value/100.0;
+	flange_transformation_[2]=updateTranslationControls(ui_->horizontalSlider_Z_Camera,ui_->label_24,ui_->label_41,flange_transformation_initial_[2]);
 }
 	void
 PCLViewer::dxCameraSliderValueChanged (int value)
 {
-	flange_transformation_[5]=degreeToRadian(value);
+	flange_transformation_[5]=updateRotationControls(ui_->horizontalSlider_dx_Camera,ui_->label_25,ui_->label_42,flange_transformation_initial_[5]);
 }
 	void
 PCLViewer::dyCameraSliderValueChanged (int value)
 {
-	flange_transformation_[4]=degreeToRadian(value);
+	flange_transformation_[4]=updateRotationControls(ui_->horizontalSlider_dy_Camera,ui_->label_26,ui_->label_43,flange_transformation_initial_[4]);
 }
 	void
 PCLViewer::dzCameraSliderValueChanged (int value)
 {
-	flange_transformation_[3]=degreeToRadian(value);
+	flange_transformation_[3]=updateRotationControls(ui_->horizontalSlider_dz_Camera,ui_->label_27,ui_->label_44,flange_transformation_initial_[3]);
 }
 
 PCLViewer::~PCLViewer ()
@@ -460,13 +457,19 @@ void PCLViewer::getInputs()
 	}
 	cout<<"Scan Location Read"<<endl;
     //Reading Default Values;
-    auto transformation_initial_flange = getTransVector(pt,"data.scan.transformations.approximate_transformation");
-    for(int i=0;i<transformation_initial_flange.size();i++)
-        transformation_[i]=transformation_initial_flange[i];
-
-    auto transformation_initial_object= getTransVector(pt,"data.camera.transformations.approximate_transformation");
+    auto transformation_initial_object= getTransVector(pt,"data.scan.transformations.approximate_transformation");
     for(int i=0;i<transformation_initial_object.size();i++)
-        flange_transformation_[i]=transformation_initial_object[i];
+    {
+        transformation_[i]=transformation_initial_object[i];
+        transformation_initial_[i] = transformation_initial_object[i];
+    }
+
+    auto transformation_initial_flange= getTransVector(pt,"data.camera.transformations.approximate_transformation");
+    for(int i=0;i<transformation_initial_flange.size();i++)
+    {
+        flange_transformation_[i]=transformation_initial_flange[i];
+        flange_transformation_initial_[i]=transformation_initial_flange[i];
+    }
 }
 
 void PCLViewer::setupViz()
@@ -487,7 +490,7 @@ void PCLViewer::setupViz()
 	cout<<"Object added"<<endl;
 	viewer_->addPointCloud (object_location_, "locations");
 	cout<<"Viewer Set"<<endl;
-	viewer_->registerPointPickingCallback (pointPickingEventOccurred);
+	viewer_->registerPointPickingCallback (&PCLViewer::pointPickingEventOccurred,*this);
 	ui_->qvtkWidget->update ();
 }
 
@@ -539,6 +542,18 @@ void PCLViewer::setupInterface()
 	}
 	cout<<"Dropdown for axes done"<<endl;
 	ui_->listView_2->setModel(model_axes_);
+
+    QStringList translation_resolutions = {"0.1", "1", "10", "100"};
+    ui_->comboBox->addItems(translation_resolutions);
+    ui_->comboBox->setCurrentIndex(1);
+    
+    QStringList rotation_resolutions = {"0.1", "1", "2", "10"};
+    ui_->comboBox_2->addItems(rotation_resolutions);
+    ui_->comboBox_2->setCurrentIndex(2);
+    
+    QStringList algorithms = {"None", "4 point Method-Object", "4 point Method-Flange", "Optimization"};
+    ui_->comboBox_3->addItems(algorithms);
+    ui_->comboBox_3->setCurrentIndex(0);
 }
 
 void PCLViewer::addWidgets()
@@ -581,34 +596,27 @@ void PCLViewer::addWidgets()
 	connect (model_axes_, SIGNAL (itemChanged(QStandardItem*)), this, SLOT (modelAxesChanged(QStandardItem*)));
 
 	connect (ui_->checkBox,  SIGNAL (clicked ()), this, SLOT (enableErrorCalculation()));
+
+	connect (ui_->comboBox, SIGNAL (currentIndexChanged(int)), this, SLOT (transResolutionChanged (int)));
+	connect (ui_->comboBox_2, SIGNAL (currentIndexChanged(int)), this, SLOT (rotResolutionChanged (int)));
+	connect (ui_->comboBox_3, SIGNAL (currentIndexChanged(int)), this, SLOT (algorithmSelected(int)));
+	connect (ui_->pushButton_2,  SIGNAL (clicked ()), this, SLOT (applyAlgorithm()));
+
 	cout<<"QT components loaded"<<endl;
 
-    ui_->horizontalSlider_X_Object->setValue(transformation_[0]*100);
-    ui_->label_10->setNum(transformation_[0]*100);
-    ui_->horizontalSlider_Y_Object->setValue(transformation_[1]*100);
-    ui_->label_11->setNum(transformation_[1]*100);
-    ui_->horizontalSlider_Z_Object->setValue(transformation_[2]*100);
-    ui_->label_12->setNum(transformation_[2]*100);
-    ui_->horizontalSlider_dx_Object->setValue(radTodeg(transformation_[5]));
-    ui_->label_13->setNum(radTodeg(transformation_[5]));
-    ui_->horizontalSlider_dy_Object->setValue(radTodeg(transformation_[4]));
-    ui_->label_14->setNum(radTodeg(transformation_[4]));
-    ui_->horizontalSlider_dz_Object->setValue(radTodeg(transformation_[3]));
-    ui_->label_21->setNum(radTodeg(transformation_[3]));
+    updateTranslationControls(ui_->horizontalSlider_X_Object,ui_->label_10,ui_->label_33,transformation_[0]);
+    updateTranslationControls(ui_->horizontalSlider_Y_Object,ui_->label_11,ui_->label_34,transformation_[1]);
+    updateTranslationControls(ui_->horizontalSlider_Z_Object,ui_->label_12,ui_->label_35,transformation_[2]);
+    updateRotationControls(ui_->horizontalSlider_dx_Object,ui_->label_13,ui_->label_36,(transformation_[5]));
+    updateRotationControls(ui_->horizontalSlider_dy_Object,ui_->label_14,ui_->label_37,(transformation_[4]));
+    updateRotationControls(ui_->horizontalSlider_dz_Object,ui_->label_21,ui_->label_38,(transformation_[3]));
 
-
-    ui_->horizontalSlider_X_Camera->setValue(flange_transformation_[0]*100);
-    ui_->label_22->setNum(flange_transformation_[0]*100);
-    ui_->horizontalSlider_Y_Camera->setValue(flange_transformation_[1]*100);
-    ui_->label_23->setNum(flange_transformation_[1]*100);
-    ui_->horizontalSlider_Z_Camera->setValue(flange_transformation_[2]*100);
-    ui_->label_24->setNum(flange_transformation_[2]*100);
-    ui_->horizontalSlider_dx_Camera->setValue(radTodeg(flange_transformation_[5]));
-    ui_->label_25->setNum(radTodeg(flange_transformation_[5]));
-    ui_->horizontalSlider_dy_Camera->setValue(radTodeg(flange_transformation_[4]));
-    ui_->label_26->setNum(radTodeg(flange_transformation_[4]));
-    ui_->horizontalSlider_dz_Camera->setValue(radTodeg(flange_transformation_[3]));
-    ui_->label_27->setNum(radTodeg(flange_transformation_[3]));
+    updateTranslationControls(ui_->horizontalSlider_X_Camera,ui_->label_22,ui_->label_39,flange_transformation_[0]);
+    updateTranslationControls(ui_->horizontalSlider_Y_Camera,ui_->label_23,ui_->label_40,flange_transformation_[1]);
+    updateTranslationControls(ui_->horizontalSlider_Z_Camera,ui_->label_24,ui_->label_41,flange_transformation_[2]);
+    updateRotationControls(ui_->horizontalSlider_dx_Camera,ui_->label_25,ui_->label_42,(flange_transformation_[5]));
+    updateRotationControls(ui_->horizontalSlider_dy_Camera,ui_->label_26,ui_->label_43,(flange_transformation_[4]));
+    updateRotationControls(ui_->horizontalSlider_dz_Camera,ui_->label_27,ui_->label_44,(flange_transformation_[3]));
 
 	// Generate html for the table.
 	tb_ = ui_->textBrowser;
@@ -617,4 +625,219 @@ void PCLViewer::addWidgets()
 	tb_->setHtml(html);
 	pSliderValueChanged (2);
 	ui_->qvtkWidget->update ();
+}
+
+double PCLViewer::updateTranslationControls(QSlider *slider,QLabel *label,QLabel *label2,double initial)
+{
+    int value = slider->value();
+    double display = initial*1000.0+(value)*translation_resolution_;
+    label->setNum(display);
+    label2->setNum(double(value*translation_resolution_));
+    return display/1000.0;
+}
+
+double PCLViewer::updateRotationControls(QSlider *slider,QLabel *label,QLabel *label2,double initial)
+{
+    int value = slider->value();
+    double display = radTodeg(initial)+(value)*rotation_resolution_;
+    label->setNum(display);
+    label2->setNum(double(value*rotation_resolution_));
+    return degreeToRadian(display);
+}
+
+void PCLViewer::transResolutionChanged(int value)
+{
+    vector<double> resolutions = {0.1,1.0,10.0,100.0};
+    for(int i=0;i<3;i++)
+    {
+        transformation_initial_[i]=transformation_[i];
+        flange_transformation_initial_[i]=flange_transformation_[i];
+    }
+    ui_->horizontalSlider_X_Object->setValue(0);
+    ui_->horizontalSlider_Y_Object->setValue(0);
+    ui_->horizontalSlider_Z_Object->setValue(0);
+    ui_->horizontalSlider_X_Camera->setValue(0);
+    ui_->horizontalSlider_Y_Camera->setValue(0);
+    ui_->horizontalSlider_Z_Camera->setValue(0);
+    translation_resolution_ = resolutions[value];
+}
+
+void PCLViewer::rotResolutionChanged(int value)
+{
+    vector<double> resolutions = {0.1,1.0,2.0,10.0};
+    for(int i=3;i<6;i++)
+    {
+        transformation_initial_[i]=transformation_[i];
+        flange_transformation_initial_[i]=flange_transformation_[i];
+    }
+    ui_->horizontalSlider_dx_Object->setValue(0);
+    ui_->horizontalSlider_dy_Object->setValue(0);
+    ui_->horizontalSlider_dz_Object->setValue(0);
+    ui_->horizontalSlider_dx_Camera->setValue(0);
+    ui_->horizontalSlider_dy_Camera->setValue(0);
+    ui_->horizontalSlider_dz_Camera->setValue(0);
+    translation_resolution_ = resolutions[value];
+}
+
+void PCLViewer::pointPickingEventOccurred (const pcl::visualization::PointPickingEvent& event, void* viewer_void)
+{
+	std::cout << "[INOF] Point picking event occurred." << std::endl;
+	float x, y, z;
+	if (event.getPointIndex () == -1)
+	{
+		return;
+	}
+	event.getPoint(x, y, z);
+	std::cout << "[INOF] Point coordinate ( " << x << ", " << y << ", " << z << ")" << std::endl;
+    if(apply_svd_)
+    {
+        if(points_1_.size()<=points_2_.size())
+        {
+            points_1_.push_back({x,y,z});
+        }
+        else
+        {
+            points_2_.push_back({x,y,z});
+        }
+
+    }
+
+}
+
+void PCLViewer::algorithmSelected(int value)
+{
+    cout<<"Value: "<<value<<endl;
+    algorithm_ = value;
+    if(value==0)
+    {
+        cout<<"Printing the Values: "<<endl;
+        for(int i=0;i<points_1_.size();i++)
+        {
+            auto x = points_1_[i];
+            auto y = points_2_[i];
+            cout<<x[0]<<" "<<x[1]<<" "<<x[2]<<" : "<<y[0]<<" "<<y[1]<<" "<<y[2]<<endl;
+        }
+        points_1_.resize(0);
+        points_2_.resize(0);
+        
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Test", "Use this result?",
+                QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            cout << "Yes was clicked";
+            for(int i=0;i<transformation_.size();i++)
+            {
+                transformation_initial_[i]=transformation_[i];
+            }
+            ui_->horizontalSlider_X_Object->setValue(0);
+            ui_->horizontalSlider_Y_Object->setValue(0);
+            ui_->horizontalSlider_Z_Object->setValue(0);
+            ui_->horizontalSlider_dx_Object->setValue(0);
+            ui_->horizontalSlider_dy_Object->setValue(0);
+            ui_->horizontalSlider_dz_Object->setValue(0);
+            updateTranslationControls(ui_->horizontalSlider_X_Object,ui_->label_10,ui_->label_33,transformation_[0]);
+            updateTranslationControls(ui_->horizontalSlider_Y_Object,ui_->label_11,ui_->label_34,transformation_[1]);
+            updateTranslationControls(ui_->horizontalSlider_Z_Object,ui_->label_12,ui_->label_35,transformation_[2]);
+            updateRotationControls(ui_->horizontalSlider_dx_Object,ui_->label_13,ui_->label_36,(transformation_[5]));
+            updateRotationControls(ui_->horizontalSlider_dy_Object,ui_->label_14,ui_->label_37,(transformation_[4]));
+            updateRotationControls(ui_->horizontalSlider_dz_Object,ui_->label_21,ui_->label_38,(transformation_[3]));
+        } else {
+            cout << "Yes was *not* clicked";
+            for(int i=0;i<transformation_.size();i++)
+            {
+                transformation_[i]=transformation_initial_[i];
+            }
+            updateObjectToSpace(cloud_,cloud_output_,transformation_,viewer_,true);
+            ui_->horizontalSlider_X_Object->setValue(0);
+            ui_->horizontalSlider_Y_Object->setValue(0);
+            ui_->horizontalSlider_Z_Object->setValue(0);
+            ui_->horizontalSlider_dx_Object->setValue(0);
+            ui_->horizontalSlider_dy_Object->setValue(0);
+            ui_->horizontalSlider_dz_Object->setValue(0);
+            updateTranslationControls(ui_->horizontalSlider_X_Object,ui_->label_10,ui_->label_33,transformation_[0]);
+            updateTranslationControls(ui_->horizontalSlider_Y_Object,ui_->label_11,ui_->label_34,transformation_[1]);
+            updateTranslationControls(ui_->horizontalSlider_Z_Object,ui_->label_12,ui_->label_35,transformation_[2]);
+            updateRotationControls(ui_->horizontalSlider_dx_Object,ui_->label_13,ui_->label_36,(transformation_[5]));
+            updateRotationControls(ui_->horizontalSlider_dy_Object,ui_->label_14,ui_->label_37,(transformation_[4]));
+            updateRotationControls(ui_->horizontalSlider_dz_Object,ui_->label_21,ui_->label_38,(transformation_[3]));
+        }
+        updateAxes();
+        apply_svd_=false;
+    }
+    else if(value==1||value==2)
+    {
+        cout<<"Applying SVD"<<endl;
+        apply_svd_=true;
+    }
+    else if(value==3)
+    {
+        //TODO: Optimizer code.
+    }
+}
+
+void PCLViewer::applyAlgorithm()
+{
+    cout<<"Button Pressed"<<endl;
+    string filename="../scripts/input.tmp";
+    ofstream file(filename);
+    if(points_1_.size()!=points_2_.size())
+        return;
+    file<<points_1_.size()<<endl;
+    //Input the global frame first.
+    for(auto x:points_1_)
+    {
+        file<<x[0]<<","<<x[1]<<","<<x[2]<<endl;
+    }
+
+    for(auto x:points_2_)
+    {
+        file<<x[0]<<","<<x[1]<<","<<x[2]<<endl;
+    }
+    file.close();
+    system("../scripts/svd.py");//TODO: Replace it with a C++ function.
+    ifstream ifile("../scripts/output.tmp");
+    string line;
+    getline(ifile,line);
+    vector<string> coords_str;
+    boost::split(coords_str, line, boost::is_any_of(","));
+    vector<double> coords;
+    for(int i=0;i<coords_str.size();i++)
+            coords.push_back(stof(coords_str[i]));
+    for(int i=0;i<6;i++)
+        if(i<3)
+            cout<<coords[i]*1000.0<<" ";
+        else
+            cout<<radTodeg(coords[i])<<" ";
+    cout<<endl;
+    if(algorithm_==1)
+    {
+        updateObjectToSpace(cloud_,cloud_output_,coords,viewer_,true);
+        for(int i=0;i<transformation_.size();i++)
+                transformation_[i]=coords[i];
+
+    }
+    if(algorithm_==2)
+    {
+        int id = 0;
+        for(int id;id<selected_clouds_.size()&&selected_clouds_[id]==false;id++);
+        if(id==selected_clouds_.size())
+            return;
+        cout<<"Selected Cloud: "<<id<<endl;
+        Eigen::MatrixXd cam_T_base = vectorToTransformationMatrix(coords);
+        Eigen::MatrixXd inverse_kinematics = inverse_kinematics_[id];//TODO: use proper cloud.
+        Eigen::MatrixXd cam_T_flange = inverse_kinematics.inverse()*cam_T_base; 
+        Eigen::MatrixXd euler = rot2eul(cam_T_flange.block<3,3>(0,0),"");
+        vector<double> transformation;
+        for(int i=0;i<3;i++)
+            transformation.push_back(cam_T_flange(0,i));
+        for(int i=0;i<3;i++)
+            transformation.push_back(euler(0,i));
+        for(int i=0;i<6;i++)
+        if(i<3)
+            cout<<transformation[i]*1000.0<<" ";
+        else
+            cout<<radTodeg(transformation[i])<<" ";
+        cout<<endl;
+        updateClouds(clouds_,cloud_outputs_,inverse_kinematics_,transformation,viewer_,selected_clouds_);
+    }
 }
