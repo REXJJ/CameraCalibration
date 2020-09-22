@@ -250,6 +250,8 @@ void PCLViewer::updateErrorTable()
         indices.resize(1, N.cols());
         dists2.resize(1, N.cols());
         nns->knn(N, indices, dists2, 1, 0.5, NNSearchF::SORT_RESULTS);
+        TOC();
+        RESET();
         for(int i=0;i<counter;i++)
         {
             double distance = sqrt(dists2(0,i));
@@ -257,6 +259,7 @@ void PCLViewer::updateErrorTable()
                 maximum=distance;
             average+=distance;
         }
+        TOC();
         average=average/counter;
 #if 0
         world_T_object = world_T_object.inverse();
