@@ -244,10 +244,10 @@
       </rect>
      </property>
      <property name="minimum">
-      <number>-100</number>
+      <number>-50</number>
      </property>
      <property name="maximum">
-      <number>100</number>
+      <number>50</number>
      </property>
      <property name="value">
       <number>0</number>
@@ -287,10 +287,10 @@
       </rect>
      </property>
      <property name="minimum">
-      <number>-100</number>
+      <number>-50</number>
      </property>
      <property name="maximum">
-      <number>100</number>
+      <number>50</number>
      </property>
      <property name="value">
       <number>0</number>
@@ -351,10 +351,10 @@
       </rect>
      </property>
      <property name="minimum">
-      <number>-100</number>
+      <number>-50</number>
      </property>
      <property name="maximum">
-      <number>100</number>
+      <number>50</number>
      </property>
      <property name="value">
       <number>0</number>
@@ -687,10 +687,10 @@
       </rect>
      </property>
      <property name="minimum">
-      <number>-100</number>
+      <number>-50</number>
      </property>
      <property name="maximum">
-      <number>100</number>
+      <number>50</number>
      </property>
      <property name="pageStep">
       <number>10</number>
@@ -733,10 +733,10 @@
       </rect>
      </property>
      <property name="minimum">
-      <number>-100</number>
+      <number>-50</number>
      </property>
      <property name="maximum">
-      <number>100</number>
+      <number>50</number>
      </property>
      <property name="value">
       <number>0</number>
@@ -797,10 +797,10 @@
       </rect>
      </property>
      <property name="minimum">
-      <number>-100</number>
+      <number>-50</number>
      </property>
      <property name="maximum">
-      <number>100</number>
+      <number>50</number>
      </property>
      <property name="value">
       <number>0</number>
@@ -944,6 +944,19 @@
       <rect>
        <x>80</x>
        <y>240</y>
+       <width>67</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_45">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>40</y>
        <width>67</width>
        <height>21</height>
       </rect>

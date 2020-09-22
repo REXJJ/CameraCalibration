@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<data>
+    <camera>
+        <transformations>
+            <inverse_kinematics>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/CameraCalibration/Part_3/Base_To_flange.txt</inverse_kinematics>
+            <approximate_transformation>
+                <angle>rad</angle>
+                <metric>m</metric>
+                <value>0.0165, 0.0972, 0.0308, 3.1301, -0.0059, 1.6067</value>
+            </approximate_transformation>
+        </transformations>
+        <metric>m</metric>
+        <clouds>
+            <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_1.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_2.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_3.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_4.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_5.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_6.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_7.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_8.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_9.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_10.ply</pointcloud>
+        </clouds>
+    </camera>
+    <scan>
+        <transformations>
+            <approximate_transformation>
+                <angle>degree</angle>
+                <metric>cm</metric>
+                <value>131.25,32.3435,-18.481,5,3,3.03029</value>
+            </approximate_transformation>
+        </transformations>
+        <metric>mm</metric>
+        <clouds>
+            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/CameraCalibration/Part_3/part_3.xyz</pointcloud>
+        </clouds>
+        <location>
+            <initial>771.94, -399.80, -74.10</initial>
+            <initial>771.91, -245.35, -70.93</initial>
+            <initial>777.41, 11.74, -74.75</initial>
+            <initial>777.42, 167.24, -93.42</initial>
+        </location>
+    </scan>
+</data>
+
+
+
+
+                <!-- <value>0,0,0,0,0,0</value> -->

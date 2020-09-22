@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<data>
+    <camera>
+        <transformations>
+            <inverse_kinematics>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/CameraCalibration/Part_2/BaseToFlange.txt</inverse_kinematics>
+            <approximate_transformation>
+                <angle>rad</angle>
+                <metric>m</metric>
+                <value>0.0165, 0.0972, 0.0308, 3.1301, -0.0059, 1.6067</value>
+            </approximate_transformation>
+        </transformations>
+        <metric>m</metric>
+        <clouds>
+            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_1.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_2.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_3.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_4.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_5.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_6.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_7.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_8.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_9.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_10.ply</pointcloud>
+        </clouds>
+    </camera>
+    <scan>
+        <transformations>
+            <approximate_transformation>
+                <angle>degree</angle>
+                <metric>cm</metric>
+                <value>28.2,20.0653,-13.5124,93.6039,-0.225452,2.04426</value>
+            </approximate_transformation>
+        </transformations>
+        <metric>mm</metric>
+        <clouds>
+            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/CameraCalibration/Part_2/part_2.xyz</pointcloud>
+        </clouds>
+        <location>
+            <initial>785.00, -195.20, -78.25</initial>
+            <initial>860.32, -197.05, -77.64</initial>
+            <initial>860.32, -271.67, -78.09</initial>
+            <initial>784.45, -274.56, -78.61</initial>
+        </location>
+    </scan>
+</data>
+
+

@@ -4,15 +4,23 @@
         <transformations>
             <inverse_kinematics>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/CameraCalibration/Part_1/Base_To_Flange.txt</inverse_kinematics>
             <approximate_transformation>
-                <angle>degree</angle>
-                <metric>cm</metric>
-                <value>0,0,0,0,0,0</value>
+                <angle>rad</angle>
+                <metric>m</metric>
+                <value>0.0165, 0.0972, 0.0308, 3.1301, -0.0059, 1.6067</value>
             </approximate_transformation>
         </transformations>
         <metric>m</metric>
         <clouds>
             <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_1.ply</pointcloud>
             <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_2.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_3.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_4.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_5.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_6.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_7.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_8.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_9.ply</pointcloud>
+            <pointcloud>/home/rex/Desktop/CleanedCloud1/cleaned_10.ply</pointcloud>
         </clouds>
     </camera>
     <scan>
@@ -20,7 +28,7 @@
             <approximate_transformation>
                 <angle>degree</angle>
                 <metric>cm</metric>
-                <value>23,-5,-37,-101,4,1</value>
+                <value>0,0,0,0,0,0</value>
             </approximate_transformation>
         </transformations>
         <metric>mm</metric>
@@ -35,4 +43,4 @@
         </location>
     </scan>
 </data>
-                <value>2,8,8,178,-1,93</value>
+                <!-- <value>0,0,0,0,0,0</value> -->
