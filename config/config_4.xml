@@ -28,7 +28,7 @@
             <approximate_transformation>
                 <angle>degree</angle>
                 <metric>cm</metric>
-                <value>0,0,0,0,0,0</value>
+                <value>150,14,-20,100,2,0</value>
             </approximate_transformation>
         </transformations>
         <metric>mm</metric>

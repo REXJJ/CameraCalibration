@@ -443,6 +443,21 @@ void Optimizer::discreteCombintorialOptimizer()
         M(2,i) = pt.z;
     }
     NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
+    //Setting up the structures.
+    vector<MatrixXf> Ns;
+    vector<MatrixXi> indis;
+    vector<MatrixXf> dists;
+    for(int i=0;i<clouds.size();i++)
+    {
+        MatrixXf N = MatrixXf::Zero(3, cloud_downsampled[i]->points.size());
+        Ns.push_back(N);
+        MatrixXi indices;
+        MatrixXf dists2;
+        indices.resize(1, Ns[i].cols());
+        dists2.resize(1, Ns[i].cols());
+        indis.push_back(indices);
+        dists.push_back(dists2);
+    }
     double min_error = 1e9;
     Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
     vector<double> trans(6),flange_trans(6);
@@ -476,7 +491,6 @@ void Optimizer::discreteCombintorialOptimizer()
                                 Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation);
                                 Eigen::MatrixXd transformation = inverse_kinematics[j]*cam_T_flange;
                                 world_T_object = world_T_object.inverse();
-                                MatrixXf N = MatrixXf::Zero(3, cloud_downsampled[j]->points.size());
                                 Eigen::Affine3d trans;
                                 for(int a=0;a<3;a++)
                                     for(int b=0;b<4;b++)
@@ -499,30 +513,27 @@ void Optimizer::discreteCombintorialOptimizer()
                                     src[1] = out[1];
                                     src[2] = out[2];
                                     apply_transformation_optimized(src,out,transW);
-                                    N(0,i) = out[0];
-                                    N(1,i) = out[1];
-                                    N(2,i) = out[2];
+                                    Ns[j](0,i) = out[0];
+                                    Ns[j](1,i) = out[1];
+                                    Ns[j](2,i) = out[2];
 #else
                                     pts(0,0)=point.x;
                                     pts(0,1)=point.y;
                                     pts(0,2)=point.z;
                                     pts=apply_transformation(pts,transformation);
                                     pts=apply_transformation(pts,world_T_object);
-                                    N(0,i) = pts(0,0);
-                                    N(1,i) = pts(0,1);
-                                    N(2,i) = pts(0,2);
+                                    Ns[j](0,i) = pts(0,0);
+                                    Ns[j](1,i) = pts(0,1);
+                                    Ns[j](2,i) = pts(0,2);
 #endif
                                     counter++;
                                 }
-                                MatrixXi indices;
-                                MatrixXf dists2;
-                                indices.resize(1, N.cols());
-                                dists2.resize(1, N.cols());
-                                nns->knn(N, indices, dists2, 1, 0.1, NNSearchF::SORT_RESULTS);
+
+                                nns->knn(Ns[j], indis[j],dists[j], 1, 0.1, NNSearchF::SORT_RESULTS);
 
                                 for(int i=0;i<counter;i++)
                                 {
-                                    double distance = sqrt(dists2(0,i));
+                                    double distance = sqrt(dists[j](0,i));
                                     if(maximum<distance)
                                         maximum=distance;
                                     average+=distance;

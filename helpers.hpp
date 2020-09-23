@@ -314,7 +314,7 @@ namespace TransformationUtilities
         return rot_mat; 
     }
 
-    Eigen::MatrixXd vectorToTransformationMatrix(vector<double>& a_T_b_static)
+    inline Eigen::MatrixXd vectorToTransformationMatrix(vector<double>& a_T_b_static)
     {
         Eigen::MatrixXd a_T_b = Eigen::MatrixXd::Identity(4,4);
         a_T_b(0,3) = a_T_b_static[0];        
