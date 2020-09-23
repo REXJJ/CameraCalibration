@@ -43,3 +43,6 @@ set(project_SOURCES main.cpp pclviewer.cpp)
 add_executable(${PROJECT_NAME} ${project_SOURCES})
 
 target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES} Eigen3::Eigen Qt5::Widgets libnabo::nabo)
+
+add_executable(optimizer optimizer_test.cpp)
+target_link_libraries(optimizer ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)

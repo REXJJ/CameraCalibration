@@ -26,7 +26,8 @@
 #include <cmath>
 #include <cstddef>
 #include <vector>
-
+typedef pcl::PointXYZRGB PointT;
+typedef pcl::PointCloud<PointT> PointCloudT;
 
 /** A helper struct to apply an SO3 or SE3 transform to a 3D point.
  * Supports single and double precision transform matrices. */

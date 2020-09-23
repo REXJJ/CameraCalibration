@@ -120,7 +120,8 @@ class PCLViewer : public QMainWindow
         double rotation_resolution_;
         std::vector<std::vector<double>> points_1_;//Points in the target frame
         std::vector<std::vector<double>> points_2_;
-        // std::vector<NNSearchF*> nabos_;
+        std::vector<NNSearchF*> nabos_;
+        NNSearchF* kd_tree_nabo_;
         bool apply_svd_;
 
     private:
@@ -134,4 +135,5 @@ class PCLViewer : public QMainWindow
         void addWidgets();
         double updateTranslationControls(QSlider*,QLabel*,QLabel*,double);
         double  updateRotationControls(QSlider*,QLabel*,QLabel*,double);
+        void findSeedPoints();
 };

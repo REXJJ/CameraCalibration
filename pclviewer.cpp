@@ -189,7 +189,6 @@ void PCLViewer::updateErrorTable()
     }
     NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
     Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
-    TIC();
     // #pragma omp parallel
     // #pragma omp for
     for(int j=0;j<clouds_.size();j++)
@@ -249,9 +248,7 @@ void PCLViewer::updateErrorTable()
         MatrixXf dists2;
         indices.resize(1, N.cols());
         dists2.resize(1, N.cols());
-        nns->knn(N, indices, dists2, 1, 0.5, NNSearchF::SORT_RESULTS);
-        TOC();
-        RESET();
+        nns->knn(N, indices, dists2, 1, 0, NNSearchF::SORT_RESULTS);
         for(int i=0;i<counter;i++)
         {
             double distance = sqrt(dists2(0,i));
@@ -259,8 +256,8 @@ void PCLViewer::updateErrorTable()
                 maximum=distance;
             average+=distance;
         }
-        TOC();
         average=average/counter;
+        std::cout<<average<<" "<<counter<<endl;
 #if 0
         world_T_object = world_T_object.inverse();
         // transformPointCloud<pcl::PointXYZ>(temp,world_T_object);
@@ -275,16 +272,13 @@ void PCLViewer::updateErrorTable()
             pts(0,0)=point.x;
             pts(0,1)=point.y;
             pts(0,2)=point.z;
-            RESET();
             pts=apply_transformation(pts,transformation);
             pts=apply_transformation(pts,world_T_object);
-            TOC();
             counter++;
             pcl::PointXYZ searchPoint;
             searchPoint.x = pts(0,0);
             searchPoint.y = pts(0,1);
             searchPoint.z = pts(0,2);
-            RESET();
 #if 0
             if ( object_kdtree_vec_[j]->nearestKSearch (searchPoint, K, pointIdxNKNSearch, pointNKNSquaredDistance) > 0 )
             {
@@ -311,7 +305,6 @@ void PCLViewer::updateErrorTable()
             if(max_error<error_now)
                 max_error = error_now;
 #endif
-            TOC();
         }
 #endif
         cout<<"Counted "<<counter<<" points."<<endl;
@@ -319,7 +312,11 @@ void PCLViewer::updateErrorTable()
         error_avg[j]=average;
         error_max[j]=maximum;
     }
-    TOC();
+    cout<<"Errors: "<<endl;
+    for(int i=0;i<error_avg.size();i++)
+    {
+        cout<<"Error Average: "<<error_avg[i]<<" Error Max: "<<error_max[i]<<endl;
+    }
     for(int j=0;j<error_avg.size();j++)
         htmlString +="<tr><td>"+to_string(j+1)+"</td><td>"+to_string(error_avg[j])+"</td><td>"+to_string(error_max[j])+"</td></tr>";
     htmlString+="</table></body></html>";
@@ -540,6 +537,7 @@ void PCLViewer::getInputs()
     transformPointCloud<pcl::PointXYZRGB>(cloud_,reflect_cloud);
 
     cout<<"Scan read"<<endl; 
+#if 0
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_bw(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::copyPointCloud(*cloud_,*cloud_bw);
     object_tree_.setInputCloud (cloud_bw);
@@ -550,14 +548,25 @@ void PCLViewer::getInputs()
         object_tree.setInputCloud (cloud_bw);
         object_tree.setEpsilon(0.1);
         object_tree_vec_.push_back(object_tree);
-        pcl::KdTreeFLANN<pcl::PointXYZ> object_tree2; 
-        object_tree2.setInputCloud (cloud_bw);
-        object_tree_vec2_.push_back(object_tree2);
+        // pcl::KdTreeFLANN<pcl::PointXYZ> object_tree2; 
+        // object_tree2.setInputCloud (cloud_bw);
+        // object_tree_vec2_.push_back(object_tree2);
         // pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
         // tree->setInputCloud(cloud_bw);
         // tree->setEpsilon(0.1);
         // object_kdtree_vec_.push_back(tree);
     }
+#endif
+
+    MatrixXf M = MatrixXf::Zero(3, cloud_->points.size());
+    for(int i=0;i<cloud_->points.size();i++)
+    {
+        auto pt = cloud_->points[i];
+        M(0,i) = pt.x;
+        M(1,i) = pt.y;
+        M(2,i) = pt.z;
+    }
+    kd_tree_nabo_ = NNSearchF::createKDTreeLinearHeap(M);
 
     cout<<object_tree_vec_.size()<<" trees are added."<<endl;
 
@@ -899,72 +908,178 @@ void PCLViewer::algorithmSelected(int value)
     else if(value==3)
     {
         //TODO: Optimizer code.
+        cout<<"Applying optimizer"<<endl;
     }
 }
 
 void PCLViewer::applyAlgorithm()
 {
     cout<<"Button Pressed"<<endl;
-    string filename="../scripts/input.tmp";
-    ofstream file(filename);
-    if(points_1_.size()!=points_2_.size())
-        return;
-    file<<points_1_.size()<<endl;
-    //Input the global frame first.
-    for(auto x:points_1_)
+    if(algorithm_==1||algorithm_==2)
     {
-        file<<x[0]<<","<<x[1]<<","<<x[2]<<endl;
-    }
-
-    for(auto x:points_2_)
-    {
-        file<<x[0]<<","<<x[1]<<","<<x[2]<<endl;
-    }
-    file.close();
-    system("../scripts/svd.py");//TODO: Replace it with a C++ function.
-    ifstream ifile("../scripts/output.tmp");
-    string line;
-    getline(ifile,line);
-    vector<string> coords_str;
-    boost::split(coords_str, line, boost::is_any_of(","));
-    vector<double> coords;
-    for(int i=0;i<coords_str.size();i++)
-        coords.push_back(stof(coords_str[i]));
-    for(int i=0;i<6;i++)
-        if(i<3)
-            cout<<coords[i]*1000.0<<" ";
-        else
-            cout<<radTodeg(coords[i])<<" ";
-    cout<<endl;
-    if(algorithm_==1)
-    {
-        updateObjectToSpace(cloud_,cloud_output_,coords,viewer_,true);
-        for(int i=0;i<transformation_.size();i++)
-            transformation_[i]=coords[i];
-
-    }
-    if(algorithm_==2)
-    {
-        int id = 0;
-        for(;id<selected_clouds_.size()&&selected_clouds_[id]==false;id++);
-        if(id==selected_clouds_.size())
+        string filename="../scripts/input.tmp";
+        ofstream file(filename);
+        if(points_1_.size()!=points_2_.size())
             return;
-        cout<<"Selected Cloud: "<<id<<endl;
-        Eigen::MatrixXd cam_T_base = vectorToTransformationMatrix(coords);
-        Eigen::MatrixXd inverse_kinematics = inverse_kinematics_[id];
-        Eigen::MatrixXd cam_T_flange = inverse_kinematics.inverse()*cam_T_base; 
-        Eigen::MatrixXd euler = rot2eul(cam_T_flange.block<3,3>(0,0),"");
-        vector<double> transformation;
-        for(int i=0;i<3;i++)
-            transformation.push_back(cam_T_flange(0,i));
-        for(int i=0;i<3;i++)
-            transformation.push_back(euler(0,i));
+        file<<points_1_.size()<<endl;
+        //Input the global frame first.
+        for(auto x:points_1_)
+        {
+            file<<x[0]<<","<<x[1]<<","<<x[2]<<endl;
+        }
+
+        for(auto x:points_2_)
+        {
+            file<<x[0]<<","<<x[1]<<","<<x[2]<<endl;
+        }
+        file.close();
+        system("../scripts/svd.py");//TODO: Replace it with a C++ function.
+        ifstream ifile("../scripts/output.tmp");
+        string line;
+        getline(ifile,line);
+        vector<string> coords_str;
+        boost::split(coords_str, line, boost::is_any_of(","));
+        vector<double> coords;
+        for(int i=0;i<coords_str.size();i++)
+            coords.push_back(stof(coords_str[i]));
         for(int i=0;i<6;i++)
             if(i<3)
-                cout<<transformation[i]*1000.0<<" ";
+                cout<<coords[i]*1000.0<<" ";
             else
-                cout<<radTodeg(transformation[i])<<" ";
+                cout<<radTodeg(coords[i])<<" ";
         cout<<endl;
-        updateClouds(clouds_,cloud_outputs_,inverse_kinematics_,transformation,viewer_,selected_clouds_);
+        if(algorithm_==1)
+        {
+            updateObjectToSpace(cloud_,cloud_output_,coords,viewer_,true);
+            for(int i=0;i<transformation_.size();i++)
+                transformation_[i]=coords[i];
+
+        }
+        if(algorithm_==2)
+        {
+            int id = 0;
+            for(;id<selected_clouds_.size()&&selected_clouds_[id]==false;id++);
+            if(id==selected_clouds_.size())
+                return;
+            cout<<"Selected Cloud: "<<id<<endl;
+            Eigen::MatrixXd cam_T_base = vectorToTransformationMatrix(coords);
+            Eigen::MatrixXd inverse_kinematics = inverse_kinematics_[id];
+            Eigen::MatrixXd cam_T_flange = inverse_kinematics.inverse()*cam_T_base; 
+            Eigen::MatrixXd euler = rot2eul(cam_T_flange.block<3,3>(0,0),"");
+            vector<double> transformation;
+            for(int i=0;i<3;i++)
+                transformation.push_back(cam_T_flange(0,i));
+            for(int i=0;i<3;i++)
+                transformation.push_back(euler(0,i));
+            for(int i=0;i<6;i++)
+                if(i<3)
+                    cout<<transformation[i]*1000.0<<" ";
+                else
+                    cout<<radTodeg(transformation[i])<<" ";
+            cout<<endl;
+            updateClouds(clouds_,cloud_outputs_,inverse_kinematics_,transformation,viewer_,selected_clouds_);
+        }
+    }
+    if(algorithm_==3)
+    {
+        findSeedPoints();
+    }
+}
+
+void PCLViewer::findSeedPoints()
+{
+    int K = 1;
+    
+    MatrixXf M = MatrixXf::Zero(3, cloud_->points.size());
+    for(int i=0;i<cloud_->points.size();i++)
+    {
+        auto pt = cloud_->points[i];
+        M(0,i) = pt.x;
+        M(1,i) = pt.y;
+        M(2,i) = pt.z;
+    }
+    NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
+
+    vector<double> error_avg(clouds_.size(),1.0/0.0);
+    vector<double> error_max(clouds_.size(),1.0/0.0);
+    double max_error = -1e9;
+    Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
+    // #pragma omp parallel
+    // #pragma omp for
+    for(int j=0;j<clouds_.size();j++)
+    {
+        if(selected_clouds_[j]==false)
+        {
+            continue;
+        }
+        float average = 0.0;
+        float maximum = -1e9;
+        int counter = 0;
+        Eigen::MatrixXd world_T_object = vectorToTransformationMatrix(transformation_);
+        Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation_);
+        Eigen::MatrixXd transformation = inverse_kinematics_[j]*cam_T_flange;
+        world_T_object = world_T_object.inverse();
+        MatrixXf N = MatrixXf::Zero(3, cloud_downsampled_[j]->points.size());
+        Eigen::Affine3d trans;
+        for(int a=0;a<3;a++)
+            for(int b=0;b<4;b++)
+                trans(a,b) = transformation(a,b);
+        Eigen::Affine3d transW;
+        for(int a=0;a<3;a++)
+            for(int b=0;b<4;b++)
+                transW(a,b) = world_T_object(a,b);
+        for(int i=0;i<cloud_downsampled_[j]->points.size();i++)
+        {
+            auto point = cloud_downsampled_[j]->points[i];
+#if 1
+            float src[3];
+            float out[3];
+            src[0] = point.x;
+            src[1] = point.y;
+            src[2] = point.z;
+            apply_transformation_optimized(src,out,trans);
+            src[0] = out[0];
+            src[1] = out[1];
+            src[2] = out[2];
+            apply_transformation_optimized(src,out,transW);
+            N(0,i) = out[0];
+            N(1,i) = out[1];
+            N(2,i) = out[2];
+#else
+            pts(0,0)=point.x;
+            pts(0,1)=point.y;
+            pts(0,2)=point.z;
+            pts=apply_transformation(pts,transformation);
+            pts=apply_transformation(pts,world_T_object);
+            N(0,i) = pts(0,0);
+            N(1,i) = pts(0,1);
+            N(2,i) = pts(0,2);
+#endif
+            counter++;
+        }
+        MatrixXi indices;
+        MatrixXf dists2;
+        indices.resize(1, N.cols());
+        dists2.resize(1, N.cols());
+        nns->knn(N, indices, dists2, 1, 0, NNSearchF::SORT_RESULTS);
+        for(int i=0;i<counter;i++)
+        {
+            double distance = sqrt(dists2(0,i));
+            if(maximum<distance)
+                maximum=distance;
+            average+=distance;
+        }
+        average=average/counter;
+        std::cout<<average<<" "<<counter<<endl;
+        cout<<"Counted "<<counter<<" points."<<endl;
+        // cout<<"Max Error : "<<max_error/1000.0<<endl;
+        error_avg[j]=average;
+        error_max[j]=maximum;
+    }
+    
+    cout<<"Errors: "<<endl;
+    for(int i=0;i<error_avg.size();i++)
+    {
+        cout<<"Error Average: "<<error_avg[i]<<" Error Max: "<<error_max[i]<<endl;
     }
 }
