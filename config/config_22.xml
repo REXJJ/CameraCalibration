@@ -6,7 +6,7 @@
             <approximate_transformation>
                 <angle>rad</angle>
                 <metric>m</metric>
-                <value>0.0185,0.0892,0.0308,3.1301,-0.0059,1.6067</value>
+                <value>0.0185,0.0892,0.0308,3.13185,-0.000664014,1.60845</value> 
             </approximate_transformation>
         </transformations>
         <metric>m</metric>
@@ -28,7 +28,7 @@
             <approximate_transformation>
                 <angle>rad</angle>
                 <metric>m</metric>
-                <value>0.29,0.196653,-0.137124,1.62316,0,0.0349066</value>
+                <value>0.29,0.196653,-0.137124,1.62491,-0.00872664,0.02618</value> 
             </approximate_transformation>
         </transformations>
         <metric>mm</metric>
@@ -44,4 +44,8 @@
     </scan>
 </data>
 
+Flange Transformation
+0.0185 0.0892 0.0308 3.13185 -0.000664014 1.60845 
+Object Transformation
+0.29 0.196653 -0.137124 1.62491 -0.00523599 0.0279253 
 

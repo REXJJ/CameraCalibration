@@ -206,7 +206,7 @@ void PCLViewer::updateErrorTable()
         Eigen::MatrixXd transformation = inverse_kinematics_[j]*cam_T_flange;
         world_T_object = world_T_object.inverse();
         // transformPointCloud<pcl::PointXYZ>(cloud_downsampled_[j],temp,transformation );
-        MatrixXf N = MatrixXf::Zero(3, cloud_downsampled_[j]->points.size());
+        MatrixXf N = MatrixXf::Zero(3, clouds_[j]->points.size());
         Eigen::Affine3d trans;
         for(int a=0;a<3;a++)
             for(int b=0;b<4;b++)
@@ -215,9 +215,9 @@ void PCLViewer::updateErrorTable()
         for(int a=0;a<3;a++)
             for(int b=0;b<4;b++)
                 transW(a,b) = world_T_object(a,b);
-        for(int i=0;i<cloud_downsampled_[j]->points.size();i++)
+        for(int i=0;i<clouds_[j]->points.size();i++)
         {
-            auto point = cloud_downsampled_[j]->points[i];
+            auto point = clouds_[j]->points[i];
 #if 1
             float src[3];
             float out[3];
@@ -494,13 +494,19 @@ void PCLViewer::getInputs()
         PointCloudT::Ptr pointcloud(new PointCloudT);
         readPointCloud(filename,pointcloud,camera_metric);
         PointCloudT::Ptr temp_cloud(new PointCloudT);
+        double z_max = 0.0,z_avg = 0.0;
         for(int i=0;i<pointcloud->points.size();i++)
         {
             auto pt = pointcloud->points[i];
             if(pt.x==0.0&&pt.y==0.0&&pt.z==0.0)
                 continue;
+            if(pt.z>z_max)
+                z_max=pt.z;
+            z_avg+=pt.z;
             temp_cloud->points.push_back(pt);
         }
+        cout<<"Max-Z height: "<<z_max<<endl;
+        cout<<"Average Z: "<<z_avg/temp_cloud->points.size()<<endl;
         clouds_.push_back(temp_cloud);
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_bw_temp(new pcl::PointCloud<pcl::PointXYZ>);

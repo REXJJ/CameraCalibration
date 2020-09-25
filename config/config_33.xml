@@ -6,7 +6,7 @@
             <approximate_transformation>
                 <angle>rad</angle>
                 <metric>m</metric>
-                <value>0.0165, 0.0972, 0.0308, 3.1301, -0.0059, 1.6067</value>
+                <value>0.0265,0.0972,0.0268,3.12835,0.00108132,1.60495</value> 
             </approximate_transformation>
         </transformations>
         <metric>m</metric>
@@ -28,7 +28,7 @@
             <approximate_transformation>
                 <angle>rad</angle>
                 <metric>m</metric>
-                <value>0.1965,-0.638565,-0.04781,3.26377,1.09464e-08,-0.0174533</value>
+                <value>0.1925,-0.648565,-0.04781,3.26202,-0.00349065,-0.0244346</value>
             </approximate_transformation>
         </transformations>
         <metric>mm</metric>
@@ -44,17 +44,5 @@
     </scan>
 </data>
 
-            <!-- <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_1.ply</pointcloud> -->
-            <!-- <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_2.ply</pointcloud> -->
-            <!-- <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_3.ply</pointcloud> -->
-            <!-- <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_4.ply</pointcloud> -->
-            <!-- <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_5.ply</pointcloud> -->
-            <!-- <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_6.ply</pointcloud> -->
-            <!-- <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_7.ply</pointcloud> -->
-            <!-- <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_8.ply</pointcloud> -->
-            <!-- <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_9.ply</pointcloud> -->
-            <!-- <pointcloud>/home/rex/Desktop/CleanedCloud3/cleaned_10.ply</pointcloud> -->
 
 
-                <!-- <value>19.85,&#45;63.6565,&#45;4.581,187,1,&#45;1</value> -->
-                <!-- <value>0,0,0,0,0,0</value> -->
