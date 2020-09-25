@@ -2,7 +2,7 @@
 <data>
     <camera>
         <transformations>
-            <inverse_kinematics>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/CameraCalibration/Part_2/BaseToFlange.txt</inverse_kinematics>
+            <inverse_kinematics>../data/Part_2/BaseToFlange.txt</inverse_kinematics>
             <approximate_transformation>
                 <angle>rad</angle>
                 <metric>m</metric>
@@ -11,16 +11,16 @@
         </transformations>
         <metric>m</metric>
         <clouds>
-            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_1.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_2.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_3.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_4.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_5.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_6.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_7.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_8.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_9.ply</pointcloud>
-            <pointcloud>/home/rex/Desktop/CleanedCloud2/cleaned_10.ply</pointcloud>
+            <pointcloud>../data/Part_2/pointcloud/cleaned_1.ply</pointcloud>
+            <pointcloud>../data/Part_2/pointcloud/cleaned_2.ply</pointcloud>
+            <pointcloud>../data/Part_2/pointcloud/cleaned_3.ply</pointcloud>
+            <pointcloud>../data/Part_2/pointcloud/cleaned_4.ply</pointcloud>
+            <pointcloud>../data/Part_2/pointcloud/cleaned_5.ply</pointcloud>
+            <pointcloud>../data/Part_2/pointcloud/cleaned_6.ply</pointcloud>
+            <pointcloud>../data/Part_2/pointcloud/cleaned_7.ply</pointcloud>
+            <pointcloud>../data/Part_2/pointcloud/cleaned_8.ply</pointcloud>
+            <pointcloud>../data/Part_2/pointcloud/cleaned_9.ply</pointcloud>
+            <pointcloud>../data/Part_2/pointcloud/cleaned_10.ply</pointcloud>
         </clouds>
     </camera>
     <scan>
@@ -33,7 +33,7 @@
         </transformations>
         <metric>mm</metric>
         <clouds>
-            <pointcloud>/home/rex/REX_WS/Test_WS/POINT_CLOUD_STITCHING/data/CameraCalibration/Part_2/part_2.xyz</pointcloud>
+            <pointcloud>../data/Part_2/part_2.xyz</pointcloud>
         </clouds>
         <location>
             <initial>785.00, -195.20, -78.25</initial>
@@ -43,9 +43,3 @@
         </location>
     </scan>
 </data>
-
-Flange Transformation
-0.0185 0.0892 0.0308 3.13185 -0.000664014 1.60845 
-Object Transformation
-0.29 0.196653 -0.137124 1.62491 -0.00523599 0.0279253 
-
