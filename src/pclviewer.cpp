@@ -58,8 +58,8 @@ void PCLViewer::enableErrorCalculation()
 
 void addCoordinateAxes(Eigen::MatrixXd& transformation,pcl::visualization::PCLVisualizer::Ptr viewer,string id)
 {
-    if(viewer->contains(id))
-        viewer->removeCoordinateSystem(id);
+    // if(viewer->contains(id))
+    viewer->removeCoordinateSystem(id);
     viewer->addCoordinateSystem(0.25,getAffineMatrix(transformation),id);
 }
 
@@ -74,16 +74,16 @@ void PCLViewer::updateAxes()
             if(selected_clouds_[i])
                 addCoordinateAxes(transformation,viewer_,"camera"+to_string(i+1));
             else
-                if(viewer_->contains("camera"+to_string(i+1)))
-                    viewer_->removeCoordinateSystem("camera"+to_string(i+1));
+                // if(viewer_->contains("camera"+to_string(i+1)))
+                viewer_->removeCoordinateSystem("camera"+to_string(i+1));
         }
     }
     else
     {
         for(int i=0;i<clouds_.size();i++)
         {
-            if(viewer_->contains("camera"+to_string(i+1)))
-                viewer_->removeCoordinateSystem("camera"+to_string(i+1));
+            // if(viewer_->contains("camera"+to_string(i+1)))
+            viewer_->removeCoordinateSystem("camera"+to_string(i+1));
         }
     }
     if(selected_axes_[1])
@@ -95,33 +95,33 @@ void PCLViewer::updateAxes()
         }
         else
         {
-            if(viewer_->contains("object"))
-                viewer_->removeCoordinateSystem("object");
+            // if(viewer_->contains("object"))
+            viewer_->removeCoordinateSystem("object");
         }
     }
     else
     {
-        if(viewer_->contains("object"))
-            viewer_->removeCoordinateSystem("object");
+        // if(viewer_->contains("object"))
+        viewer_->removeCoordinateSystem("object");
     }
     for(int i=2;i<selected_axes_.size()-1;i++)
         if(selected_axes_[i])
             addCoordinateAxes(inverse_kinematics_[i-2],viewer_,"flange"+to_string(i-1));
         else
-            if(viewer_->contains("flange"+to_string(i-1)))
-                viewer_->removeCoordinateSystem("flange"+to_string(i-1));
+            // if(viewer_->contains("flange"+to_string(i-1)))
+            viewer_->removeCoordinateSystem("flange"+to_string(i-1));
 
     if(selected_axes_[selected_axes_.size()-1])
     {
-        if(viewer_->contains("origin"))
-            viewer_->removeCoordinateSystem("origin");
+        // if(viewer_->contains("origin"))
+        viewer_->removeCoordinateSystem("origin");
         viewer_->addCoordinateSystem(1.0,Eigen::Affine3f::Identity(),"origin");
         cout<<"Adding the origin"<<endl;
     }
     else
     {
-        if(viewer_->contains("origin"))
-            viewer_->removeCoordinateSystem("origin");
+        // if(viewer_->contains("origin"))
+        viewer_->removeCoordinateSystem("origin");
         cout<<"Removing the origin"<<endl;
     }
 
@@ -995,7 +995,7 @@ void PCLViewer::applyAlgorithm()
 void PCLViewer::findSeedPoints()
 {
     int K = 1;
-    
+
     MatrixXf M = MatrixXf::Zero(3, cloud_->points.size());
     for(int i=0;i<cloud_->points.size();i++)
     {
@@ -1082,7 +1082,7 @@ void PCLViewer::findSeedPoints()
         error_avg[j]=average;
         error_max[j]=maximum;
     }
-    
+
     cout<<"Errors: "<<endl;
     for(int i=0;i<error_avg.size();i++)
     {

@@ -402,6 +402,7 @@ namespace InputUtilities
         }
         else if(type=="ply")
         {
+#if 0
             pcl::PLYReader reader;
             reader.read(filename, *cloud);
             if(metric!="m")
@@ -411,7 +412,24 @@ namespace InputUtilities
                     pt.y=pt.y/scale;
                     pt.z=pt.z/scale;
                 }
-
+#else
+            ifstream file(filename);
+            string line;
+            for(int c=0;c<14&&getline(file,line);c++);
+            while(getline(file,line))
+            {
+                vector<string> values_from_file;
+                boost::split(values_from_file, line, boost::is_any_of(" "));
+                pcl::PointXYZRGB pt;
+                pt.x = stof(values_from_file[0]);
+                pt.y = stof(values_from_file[1]);
+                pt.z = stof(values_from_file[2]);
+                pt.r = stof(values_from_file[3]);
+                pt.g = stof(values_from_file[4]);
+                pt.b = stof(values_from_file[5]);
+                cloud->points.push_back(pt);
+            }
+#endif            
         }
         else if(type=="xyz")
         {
