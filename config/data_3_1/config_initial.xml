@@ -29,7 +29,7 @@
             <approximate_transformation>
                 <angle>degree</angle>
                 <metric>cm</metric>
-                <value>122.65,10.435,-16.381,0,0,4</value>
+                <value>122.65,10.435,-16.381,4,0,0</value>
             </approximate_transformation>
         </transformations>
         <metric>mm</metric>

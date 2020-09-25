@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<data>
+    <camera>
+        <transformations>
+            <inverse_kinematics>../data/Part_1/BaseToFlange.txt</inverse_kinematics>
+            <approximate_transformation>
+                <angle>rad</angle>
+                <metric>m</metric>
+                <value>0.0165, 0.0972, 0.0308, 3.1301, -0.0059, 1.6067</value>
+            </approximate_transformation>
+        </transformations>
+        <metric>m</metric>
+        <clouds>
+            <pointcloud>../data/Part_1/pointcloud/cleaned_1.ply</pointcloud>
+            <pointcloud>../data/Part_1/pointcloud/cleaned_2.ply</pointcloud>
+            <pointcloud>../data/Part_1/pointcloud/cleaned_3.ply</pointcloud>
+            <pointcloud>../data/Part_1/pointcloud/cleaned_4.ply</pointcloud>
+            <pointcloud>../data/Part_1/pointcloud/cleaned_5.ply</pointcloud>
+            <pointcloud>../data/Part_1/pointcloud/cleaned_6.ply</pointcloud>
+            <pointcloud>../data/Part_1/pointcloud/cleaned_7.ply</pointcloud>
+            <pointcloud>../data/Part_1/pointcloud/cleaned_8.ply</pointcloud>
+            <pointcloud>../data/Part_1/pointcloud/cleaned_9.ply</pointcloud>
+            <pointcloud>../data/Part_1/pointcloud/cleaned_10.ply</pointcloud>
+        </clouds>
+    </camera>
+    <scan>
+        <transformations>
+            <approximate_transformation>
+                <angle>degree</angle>
+                <metric>cm</metric>
+                <value>150,9.4,-19.4,96,2,1</value>
+            </approximate_transformation>
+        </transformations>
+        <metric>mm</metric>
+        <clouds>
+            <pointcloud>../data/Part_1/part_1.xyz</pointcloud>
+        </clouds>
+        <location>
+            <initial>943.16, -437.89, 148.68</initial>
+            <initial>986.85, 172.90, 294.63</initial>
+            <initial>938.54, 177.48, 291.95</initial>
+            <initial>692.49, 175.45, 40.57</initial>
+        </location>
+    </scan>
+</data>
+<!-- <value>0,0,0,0,0,0</value> -->
+
+

@@ -38,11 +38,11 @@ list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
 include_directories(${PCL_INCLUDE_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-set(project_SOURCES main.cpp pclviewer.cpp)
+set(project_SOURCES src/main.cpp src/pclviewer.cpp)
 
 add_executable(${PROJECT_NAME} ${project_SOURCES})
 
 target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES} Eigen3::Eigen Qt5::Widgets libnabo::nabo)
 
-add_executable(optimizer optimizer_test.cpp)
+add_executable(optimizer src/optimizer_test.cpp)
 target_link_libraries(optimizer ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)
