@@ -36,6 +36,7 @@ PCLViewer::PCLViewer (QWidget *parent) :
     calculate_error_= false;
     apply_svd_ = false;
     algorithm_ = 0;
+    z_threshold_ = 100;
     viewer_.reset (new pcl::visualization::PCLVisualizer ("viewer", false));
     // if(QCoreApplication::arguments().size()!=2)
     // {

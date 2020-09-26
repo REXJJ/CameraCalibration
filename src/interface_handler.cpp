@@ -65,9 +65,10 @@ void PCLViewer::getInputs()
         sor.filter (*cloud_filtered);
 
         cloud_downsampled_.push_back(cloud_filtered);
-
         PointCloudT::Ptr pointcloud_output(new PointCloudT);
         cloud_outputs_.push_back(pointcloud_output);
+
+
         cout<<filename<<endl;
     }
     string ik_filename  = pt.get<std::string>("data.camera.transformations.inverse_kinematics");
@@ -201,7 +202,7 @@ void PCLViewer::setupInterface()
         model_clouds_->setItem(i, item);
         selected_clouds_.push_back(false);
     }
-    updateClouds(clouds_,cloud_outputs_,inverse_kinematics_,flange_transformation_,viewer_,selected_clouds_);
+    updateClouds();
     updateObjectToSpace(cloud_,cloud_output_,transformation_,viewer_,false);
     if(selected_clouds_[selected_clouds_.size()-1]==false)
     {
@@ -238,7 +239,7 @@ void PCLViewer::setupInterface()
     ui_->comboBox_2->addItems(rotation_resolutions);
     ui_->comboBox_2->setCurrentIndex(2);
 
-    QStringList algorithms = {"None", "4 point Method-Object", "4 point Method-Flange", "Optimization"};
+    QStringList algorithms = {"None", "4 point Method-Object", "4 point Method-Flange", "Optimization","Show Errors"};
     ui_->comboBox_3->addItems(algorithms);
     ui_->comboBox_3->setCurrentIndex(0);
 }
@@ -277,12 +278,15 @@ void PCLViewer::addWidgets()
     connect (ui_->horizontalSlider_dz_Camera, SIGNAL (sliderReleased ()), this, SLOT (cameraSliderReleased ()));
 
     connect (ui_->horizontalSlider_p, SIGNAL (valueChanged (int)), this, SLOT (pSliderValueChanged (int)));
+    connect (ui_->horizontalSlider_p_2, SIGNAL (valueChanged (int)), this, SLOT (zThreshSliderValueChanged  (int)));
 
     connect (model_clouds_, SIGNAL (itemChanged(QStandardItem*)), this, SLOT (modelChanged(QStandardItem*)));
 
     connect (model_axes_, SIGNAL (itemChanged(QStandardItem*)), this, SLOT (modelAxesChanged(QStandardItem*)));
 
     connect (ui_->checkBox,  SIGNAL (clicked ()), this, SLOT (enableErrorCalculation()));
+
+    connect (ui_->checkBox_2,  SIGNAL (clicked ()), this, SLOT (enablePointsClassifier()));
 
     connect (ui_->comboBox, SIGNAL (currentIndexChanged(int)), this, SLOT (transResolutionChanged (int)));
     connect (ui_->comboBox_2, SIGNAL (currentIndexChanged(int)), this, SLOT (rotResolutionChanged (int)));
@@ -314,4 +318,42 @@ void PCLViewer::addWidgets()
     ui_->qvtkWidget->update ();
 }
 
-
+void PCLViewer::updateClouds(vector<PointCloudT::Ptr> clouds)
+{
+    if(clouds_.size()>inverse_kinematics_.size())
+    {
+        throw "Size Mismatch Error.\n";
+    }
+    vector<PointCloudT::Ptr> processed;
+    for(int i=0;i<clouds_.size();i++)
+    {
+        PointCloudT::Ptr cloud;
+        if(identify_good_points_==false)
+            cloud = clouds_[i];
+        else 
+            cloud = cloud_classified_[i];
+        if(clouds.size())
+            cloud = clouds[i];
+        PointCloudT::Ptr pro(new PointCloudT);
+        for(auto pt:cloud->points)
+        {
+            if(pt.z<double(z_threshold_)/100.0)
+                pro->points.push_back(pt);
+        }
+        processed.push_back(pro);
+    }
+    for(int i=0;i<clouds_.size();i++)
+    {
+        cloud_outputs_[i]->clear();
+        Eigen::MatrixXd cam_T_flange = TransformationUtilities::vectorToTransformationMatrix(flange_transformation_);
+        Eigen::MatrixXd transformation = inverse_kinematics_[i]*cam_T_flange;
+        if(selected_clouds_[i])
+        {
+            if(identify_good_points_==false)
+                TransformationUtilities::transformPointCloud<pcl::PointXYZRGB>(processed[i],cloud_outputs_[i],transformation);
+            else
+                TransformationUtilities::transformPointCloud<pcl::PointXYZRGB>(processed[i],cloud_outputs_[i],transformation);
+        }
+        viewer_->updatePointCloud (cloud_outputs_[i], "cloud"+to_string(i+1));
+    }
+}

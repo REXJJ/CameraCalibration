@@ -10,6 +10,7 @@
 #include <pcl/common/transforms.h>
 #include <omp.h>
 #include "nabo/nabo.h"
+#include "algorithms.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -23,6 +24,23 @@ void PCLViewer::enableErrorCalculation()
     calculate_error_=!calculate_error_;
     if(calculate_error_)
         updateErrorTable();
+}
+
+void PCLViewer::enablePointsClassifier()
+{
+    identify_good_points_=!identify_good_points_;
+    if(cloud_classified_.size()==0)
+    {
+        for(int i=0;i<clouds_.size();i++)
+        {
+            auto cloud = clouds_[i];
+            pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_processed(new pcl::PointCloud<pcl::PointXYZRGB>);
+            PointCloudProcessing::classifyPointCloud(cloud,cloud_processed);
+            cloud_classified_.push_back(cloud_processed);
+        }
+    }
+    if(identify_good_points_)
+        updateClouds();
 }
 
 void addCoordinateAxes(Eigen::MatrixXd& transformation,pcl::visualization::PCLVisualizer::Ptr viewer,string id)
@@ -122,7 +140,7 @@ void PCLViewer::modelChanged (QStandardItem *item)
         selected_clouds_[id.row()]=false;
 
     if(id.row()<clouds_.size())
-        updateClouds(clouds_,cloud_outputs_,inverse_kinematics_,flange_transformation_,viewer_,selected_clouds_);
+        updateClouds();
     else if(id.row()==clouds_.size())
         updateObjectToSpace(cloud_,cloud_output_,transformation_,viewer_,selected_clouds_[id.row()]);
     else
@@ -145,8 +163,8 @@ void PCLViewer::updateErrorTable()
 {
     int K = 1;
     string htmlString = "<!DOCTYPE html><htmt><body><style>table, th, td { border: 1px solid black;border-collapse: collapse;}</style><center>Error Metrics</center><table><tr><th>Cloud Id</th><th>Avg Error</th><th>Max Error</th></tr>";
-    vector<double> error_avg(clouds_.size(),1.0/0.0);
-    vector<double> error_max(clouds_.size(),1.0/0.0);
+    vector<double> error_avg(clouds_.size(),0.0);
+    vector<double> error_max(clouds_.size(),0.0);
     double max_error = -1e9;
     MatrixXf M = MatrixXf::Zero(3, cloud_->points.size());
     for(int i=0;i<cloud_->points.size();i++)
@@ -238,7 +256,7 @@ void PCLViewer::updateErrorTable()
         cout<<"Error Average: "<<error_avg[i]<<" Error Max: "<<error_max[i]<<endl;
     }
     for(int j=0;j<error_avg.size();j++)
-        htmlString +="<tr><td>"+to_string(j+1)+"</td><td>"+to_string(error_avg[j])+"</td><td>"+to_string(error_max[j])+"</td></tr>";
+        htmlString +="<tr><td>"+to_string(j+1)+"</td><td>"+to_string(int(round(error_avg[j]*1000.0)))+"</td><td>"+to_string(int(round(error_max[j]*1000.0)))+"</td></tr>";
     htmlString+="</table></body></html>";
     QString html = QString::fromUtf8(htmlString.c_str());
     tb_->setHtml(html);
@@ -319,6 +337,10 @@ void PCLViewer::algorithmSelected(int value)
         //TODO: Optimizer code.
         cout<<"Applying optimizer"<<endl;
     }
+    else if (value==4)
+    {
+        algorithm_=4;
+    }
 }
 
 void PCLViewer::applyAlgorithm()
@@ -386,11 +408,15 @@ void PCLViewer::applyAlgorithm()
                 else
                     cout<<radTodeg(transformation[i])<<" ";
             cout<<endl;
-            updateClouds(clouds_,cloud_outputs_,inverse_kinematics_,transformation,viewer_,selected_clouds_);
+            updateClouds();
         }
     }
     if(algorithm_==3)
     {
         findSeedPoints();
+    }
+    if(algorithm_==4)
+    {
+        showErrorsInPoints();
     }
 }
