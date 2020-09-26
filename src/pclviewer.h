@@ -20,6 +20,7 @@
 #include <Eigen/Core>
 // Visualization Toolkit (VTK)
 #include <vtkRenderWindow.h>
+#include "helpers.hpp"
 #include "nabo/nabo.h"
 
 typedef pcl::PointXYZRGB PointT;
@@ -136,4 +137,5 @@ class PCLViewer : public QMainWindow
         double updateTranslationControls(QSlider*,QLabel*,QLabel*,double);
         double  updateRotationControls(QSlider*,QLabel*,QLabel*,double);
         void findSeedPoints();
+        void updateSliders();
 };
