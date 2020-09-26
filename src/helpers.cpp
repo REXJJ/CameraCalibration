@@ -241,6 +241,7 @@ namespace InputUtilities
         }
         return transformations;
     }
+
     vector<double> getTransVector(boost::property_tree::ptree &pt,string s)
     {
         string angle_metric = pt.get<std::string>(s+".angle","radian");
@@ -320,25 +321,6 @@ namespace InterfaceUtilities
             TransformationUtilities::transformPointCloud<pcl::PointXYZRGB>(clouds[i],cloud_outputs[i],transformation);
             viewer->addPointCloud (cloud_outputs[i], "cloud"+to_string(i+1));
             cout<<"Adding cloud: "<<i<<endl;
-        }
-    }
-
-    void updateClouds(vector<PointCloudT::Ptr>& clouds,vector<PointCloudT::Ptr>& cloud_outputs,vector<MatrixXd>& iks,vector<double> & flange_transformation,pcl::visualization::PCLVisualizer::Ptr viewer,vector<bool>& selected)
-    {
-        if(clouds.size()>iks.size())
-        {
-            throw "Size Mismatch Error.\n";
-        }
-        for(int i=0;i<clouds.size();i++)
-        {
-            cloud_outputs[i]->clear();
-            Eigen::MatrixXd cam_T_flange = TransformationUtilities::vectorToTransformationMatrix(flange_transformation);
-            Eigen::MatrixXd transformation = iks[i]*cam_T_flange;
-            if(selected[i])
-            {
-                TransformationUtilities::transformPointCloud<pcl::PointXYZRGB>(clouds[i],cloud_outputs[i],transformation);
-            }
-            viewer->updatePointCloud (cloud_outputs[i], "cloud"+to_string(i+1));
         }
     }
 

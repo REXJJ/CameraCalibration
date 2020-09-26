@@ -37,7 +37,7 @@ PCLViewer::objectSliderReleased ()
 PCLViewer::cameraSliderReleased ()
 {
     // Set the new clouds
-    updateClouds(clouds_,cloud_outputs_,inverse_kinematics_,flange_transformation_,viewer_,selected_clouds_);
+    updateClouds();
     updateAxes();
     if(calculate_error_)
         updateErrorTable();
@@ -59,6 +59,14 @@ PCLViewer::pSliderValueChanged (int value)
     viewer_->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, value, "locations");
     updateAxes();
     ui_->qvtkWidget->update ();
+}
+
+void 
+PCLViewer::zThreshSliderValueChanged (int value)
+{
+    ui_->label_46->setNum(value);
+    z_threshold_ = value;
+    updateClouds();
 }
 
     void
