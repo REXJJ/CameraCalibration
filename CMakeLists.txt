@@ -35,14 +35,10 @@ add_definitions(${PCL_DEFINITIONS})
 # Fix a compilation bug under ubuntu 16.04 (Xenial)
 list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
 
-include_directories(${PCL_INCLUDE_DIRS})
-add_definitions(${PCL_DEFINITIONS})
-
-set(project_SOURCES src/main.cpp src/pclviewer.cpp)
+set(project_SOURCES src/main.cpp src/pclviewer.cpp src/interface_handler.cpp src/control_handler.cpp src/sliders_handler.cpp src/algorithms.cpp src/helpers.cpp)
 
 add_executable(${PROJECT_NAME} ${project_SOURCES})
-
 target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES} Eigen3::Eigen Qt5::Widgets libnabo::nabo)
 
-add_executable(optimizer src/optimizer_test.cpp)
+add_executable(optimizer src/optimizer_test.cpp src/helpers.cpp)
 target_link_libraries(optimizer ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)
