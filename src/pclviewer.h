@@ -50,6 +50,8 @@ class PCLViewer : public QMainWindow
 
         void pSliderValueChanged (int value);
 
+        void zThreshSliderValueChanged (int value);
+
         void xSliderValueChanged (int value);
 
         void ySliderValueChanged (int value);
@@ -94,6 +96,8 @@ class PCLViewer : public QMainWindow
 
         void pointPickingEventOccurred (const pcl::visualization::PointPickingEvent& event, void* viewer_void);
 
+        void enablePointsClassifier();
+
 
     protected:
         pcl::visualization::PCLVisualizer::Ptr viewer_;
@@ -107,6 +111,7 @@ class PCLViewer : public QMainWindow
         std::vector<double> flange_transformation_initial_;
         std::vector<PointCloudT::Ptr> clouds_;
         std::vector<PointCloudT::Ptr> cloud_outputs_;
+        std::vector<PointCloudT::Ptr> cloud_classified_;
         std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloud_downsampled_;
         std::vector<Eigen::MatrixXd> inverse_kinematics_;
         std::vector<QStandardItem*> items_; 
@@ -124,6 +129,8 @@ class PCLViewer : public QMainWindow
         std::vector<NNSearchF*> nabos_;
         NNSearchF* kd_tree_nabo_;
         bool apply_svd_;
+        bool identify_good_points_;
+        int z_threshold_;
 
     private:
         Ui::PCLViewer *ui_;
@@ -137,5 +144,8 @@ class PCLViewer : public QMainWindow
         double updateTranslationControls(QSlider*,QLabel*,QLabel*,double);
         double  updateRotationControls(QSlider*,QLabel*,QLabel*,double);
         void findSeedPoints();
+        void classifyPoints();
         void updateSliders();
+        void updateClouds(vector<PointCloudT::Ptr> clouds={});
+        void showErrorsInPoints();
 };
