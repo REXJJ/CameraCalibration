@@ -11,6 +11,9 @@
 #include <fstream>
 #include <thread>
 #include <ctime>
+
+#include "pclviewer.h"
+#include "ui_pclviewer.h"
 /*********************************************/
 //PCL HEADERS
 /**********************************************/
@@ -34,8 +37,6 @@
 /**********************************************/
 #include <Eigen/Dense>
 #include <Eigen/Core>
-#include "pclviewer.h"
-#include "ui_pclviewer.h"
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <omp.h>
