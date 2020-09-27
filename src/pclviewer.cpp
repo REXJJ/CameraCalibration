@@ -35,7 +35,7 @@ PCLViewer::PCLViewer (QWidget *parent) :
     rotation_resolution_ = 2.0;
     calculate_error_= false;
     apply_svd_ = false;
-    identify_good_points_=false;
+    identify_good_points_ = false;
     algorithm_ = 0;
     z_threshold_ = 100;
     viewer_.reset (new pcl::visualization::PCLVisualizer ("viewer", false));
