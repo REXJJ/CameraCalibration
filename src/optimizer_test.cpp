@@ -294,6 +294,20 @@ void Optimizer::discreteCombintorialOptimizerTranslation()
                                 for(auto x:trans)
                                     cout<<x<<" ";
                                 cout<<endl;
+                                ofstream ofile("temp.tmp",std::ios_base::app);
+                                ofile<<"Iteration: "<<iterations<<endl;
+                                ofile<<xf<<" "<<yf<<" "<<zf<<" "<<xo<<" "<<yo<<" "<<zo<<endl;
+                                ofile<<"Minimum Error: "<<min_error<<endl;
+                                ofile<<"Flange Transformation"<<endl;
+                                for(auto x:flange_trans)
+                                    ofile<<x<<" ";
+                                ofile<<endl;
+                                ofile<<"Object Transformation"<<endl;
+                                for(auto x:trans)
+                                    ofile<<x<<" ";
+                                ofile<<endl;
+                                sleep(10);
+                                cout<<"Sleep Over"<<endl;
                             }
                             flange_transformation[0]-=xf/1000.0;
                             flange_transformation[1]-=yf/1000.0;
@@ -647,8 +661,8 @@ int main(int argc, char** argv)
     }
     Optimizer opti = Optimizer(string(argv[1]));
     opti.getInputs();
-    // opti.discreteCombintorialOptimizerTranslation();
-    opti.discreteCombintorialOptimizerRotation();
+    opti.discreteCombintorialOptimizerTranslation();
+    // opti.discreteCombintorialOptimizerRotation();
     return 0;
 }
 
