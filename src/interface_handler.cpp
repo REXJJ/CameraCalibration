@@ -178,12 +178,15 @@ void PCLViewer::setupViz()
     viewer_->addPointCloud (object_location_, "locations");
     cout<<"Viewer Set"<<endl;
     viewer_->registerPointPickingCallback (&PCLViewer::pointPickingEventOccurred,*this);
+    cout<<"Callback Done"<<endl;
     ui_->qvtkWidget->update ();
+    cout<<"QT Set"<<endl;
 }
 
 void PCLViewer::setupInterface()
 {
     //Setting up the dropdown for clouds.
+    cout<<"Setting up dropdown for clouds"<<endl;
     vector<string> values;
     for(int i=0;i<clouds_.size();i++)
         values.push_back("cloud "+to_string(i+1));
@@ -203,7 +206,9 @@ void PCLViewer::setupInterface()
         selected_clouds_.push_back(false);
     }
     updateClouds();
+    cout<<"Updating Clouds"<<endl;
     updateObjectToSpace(cloud_,cloud_output_,transformation_,viewer_,false);
+    cout<<"Updating Object"<<endl;
     if(selected_clouds_[selected_clouds_.size()-1]==false)
     {
         PointCloudT::Ptr temp(new PointCloudT);
@@ -325,15 +330,22 @@ void PCLViewer::updateClouds(vector<PointCloudT::Ptr> clouds)
         throw "Size Mismatch Error.\n";
     }
     vector<PointCloudT::Ptr> processed;
+    cout<<"Entering Loop"<<endl;
     for(int i=0;i<clouds_.size();i++)
     {
+        cout<<"Inside Loop"<<endl;
         PointCloudT::Ptr cloud;
         if(identify_good_points_==false)
+        {
+            cout<<"Here"<<endl;
             cloud = clouds_[i];
+            cout<<"Here"<<endl;
+        }
         else 
             cloud = cloud_classified_[i];
         if(clouds.size())
             cloud = clouds[i];
+        cout<<"Assigned clouds"<<endl;
         PointCloudT::Ptr pro(new PointCloudT);
         for(auto pt:cloud->points)
         {
@@ -342,6 +354,7 @@ void PCLViewer::updateClouds(vector<PointCloudT::Ptr> clouds)
         }
         processed.push_back(pro);
     }
+    cout<<"Processed Clouds"<<endl;
     for(int i=0;i<clouds_.size();i++)
     {
         cloud_outputs_[i]->clear();
