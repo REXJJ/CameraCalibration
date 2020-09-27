@@ -28,6 +28,7 @@
 #include <pcl/registration/icp.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/common/transforms.h>
+#include <pcl/features/normal_3d_omp.h>
 /*********************************************/
 //OTHER HEADERS
 /**********************************************/
@@ -79,7 +80,7 @@ namespace PointCloudProcessing
             cloud_bw->points.push_back(ptxyz);
         }
         pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
-        pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
+        pcl::NormalEstimationOMP<pcl::PointXYZ, pcl::Normal> ne;
         ne.setInputCloud (cloud_bw);
         pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ> ());
         ne.setSearchMethod (tree);
