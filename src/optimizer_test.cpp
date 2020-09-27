@@ -273,7 +273,7 @@ void Optimizer::discreteCombintorialOptimizerTranslation()
                                     average+=distance;
                                 }
                                 average=average/counter;
-                                err = err + average*0.5 + maximum*0.5;
+                                err = err + average;
                             }
                             if(err<min_error)
                             {
@@ -502,7 +502,7 @@ void Optimizer::discreteCombintorialOptimizerSmallBruteForce()
     int iter_max = 1;
     TIC();
     int iterations = 0;
-    for(int x=0;x<3;x++)
+    for(int x=0;x<7;x++)
         for(int a=iter_min;a<=iter_max;a++)
             for(int b=iter_min;b<=iter_max;b++)
                 for(int c=iter_min;c<=iter_max;c++)
@@ -517,18 +517,18 @@ void Optimizer::discreteCombintorialOptimizerSmallBruteForce()
                                                     for(int l=iter_min;l<=iter_max;l++)
                                                     {
                                                         double err = 0.0;
-                                                        flange_transformation[0]+=a;
-                                                        flange_transformation[1]+=b;
-                                                        flange_transformation[2]+=c;
-                                                        flange_transformation[3]+=degreeToRadian(float(d/10.0));
-                                                        flange_transformation[4]+=degreeToRadian(float(e/10.0));
-                                                        flange_transformation[5]+=degreeToRadian(float(f/10.0));
-                                                        transformation[0]+=g;
-                                                        transformation[1]+=h;
-                                                        transformation[2]+=i;
-                                                        transformation[3]+=degreeToRadian(float(j/10.0));
-                                                        transformation[4]+=degreeToRadian(float(k/10.0));
-                                                        transformation[5]+=degreeToRadian(float(l/10.0));
+                                                        flange_transformation[0]+=a/1000.0;
+                                                        flange_transformation[1]+=b/1000.0;
+                                                        flange_transformation[2]+=c/1000.0;
+                                                        flange_transformation[3]+=degreeToRadian(float(d/2.0));
+                                                        flange_transformation[4]+=degreeToRadian(float(e/2.0));
+                                                        flange_transformation[5]+=degreeToRadian(float(f/2.0));
+                                                        transformation[0]+=g/1000.0;
+                                                        transformation[1]+=h/1000.0;
+                                                        transformation[2]+=i/1000.0;
+                                                        transformation[3]+=degreeToRadian(float(j/2.0));
+                                                        transformation[4]+=degreeToRadian(float(k/2.0));
+                                                        transformation[5]+=degreeToRadian(float(l/2.0));
                                                         TIC();
                                                         // #pragma omp parallel
                                                         // #pragma omp for
@@ -610,18 +610,18 @@ void Optimizer::discreteCombintorialOptimizerSmallBruteForce()
                                                                 cout<<x<<" ";
                                                             cout<<endl;
                                                         }
-                                                        flange_transformation[0]-=a;
-                                                        flange_transformation[1]-=b;
-                                                        flange_transformation[2]-=c;
-                                                        flange_transformation[3]-=degreeToRadian(float(d/10.0));
-                                                        flange_transformation[4]-=degreeToRadian(float(e/10.0));
-                                                        flange_transformation[5]-=degreeToRadian(float(f/10.0));
-                                                        transformation[0]-=g;
-                                                        transformation[1]-=h;
-                                                        transformation[2]-=i;
-                                                        transformation[3]-=degreeToRadian(float(j/10.0));
-                                                        transformation[4]-=degreeToRadian(float(k/10.0));
-                                                        transformation[5]-=degreeToRadian(float(l/10.0));
+                                                        flange_transformation[0]-=a/1000.0;
+                                                        flange_transformation[1]-=b/1000.0;
+                                                        flange_transformation[2]-=c/1000.0;
+                                                        flange_transformation[3]-=degreeToRadian(float(d/2.0));
+                                                        flange_transformation[4]-=degreeToRadian(float(e/2.0));
+                                                        flange_transformation[5]-=degreeToRadian(float(f/2.0));
+                                                        transformation[0]-=g/1000.0;
+                                                        transformation[1]-=h/1000.0;
+                                                        transformation[2]-=i/1000.0;
+                                                        transformation[3]-=degreeToRadian(float(j/2.0));
+                                                        transformation[4]-=degreeToRadian(float(k/2.0));
+                                                        transformation[5]-=degreeToRadian(float(l/2.0));
                                                         iterations++;
                                                     }
     TOC();
@@ -647,8 +647,9 @@ int main(int argc, char** argv)
     }
     Optimizer opti = Optimizer(string(argv[1]));
     opti.getInputs();
+    cout<<" Discrete optimization on Translation.."<<endl;
+    // opti.discreteCombintorialOptimizerSmallBruteForce();
     opti.discreteCombintorialOptimizerTranslation();
-    // opti.discreteCombintorialOptimizerRotation();
-	  return 0;
+    return 0;
 }
 
