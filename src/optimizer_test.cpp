@@ -125,8 +125,8 @@ void Optimizer::getInputs()
         pcl::copyPointCloud(*temp_cloud,*cloud_bw_temp);
         pcl::VoxelGrid<pcl::PointXYZ> sor;
         sor.setInputCloud (cloud_bw_temp);
-        // constexpr double leaf = 0.0225f;
-        constexpr double leaf = 0.007f;
+        constexpr double leaf = 0.0225f;
+        // constexpr double leaf = 0.007f;
         sor.setLeafSize (leaf, leaf, leaf);
         sor.filter (*cloud_filtered);
         cloud_downsampled.push_back(cloud_filtered);
@@ -348,20 +348,20 @@ void Optimizer::discreteCombintorialOptimizerRotation()
     int iter_max = 4;
     TIC();
     int iterations = 0;
-    for(int xf=iter_min;xf<=iter_max;xf+=1)
-        for(int yf=iter_min;yf<=iter_max;yf+=1)
-            for(int zf=iter_min;zf<=iter_max;zf+=1)
-                for(int xo=iter_min;xo<=iter_max;xo+=1)
-                    for(int yo=iter_min;yo<=iter_max;yo+=1)
-                        for(int zo=iter_min;zo<=iter_max;zo+=1)
+    for(float xf=iter_min;xf<=iter_max;xf+=1)
+        for(float yf=iter_min;yf<=iter_max;yf+=1)
+            for(float zf=iter_min;zf<=iter_max;zf+=1)
+                for(float xo=iter_min;xo<=iter_max;xo+=1)
+                    for(float yo=iter_min;yo<=iter_max;yo+=1)
+                        for(float zo=iter_min;zo<=iter_max;zo+=1)
                         {
                             double err = 0.0;
-                            flange_transformation[3]+=degreeToRadian(xf/10.0);
-                            flange_transformation[4]+=degreeToRadian(yf/10.0);
-                            flange_transformation[5]+=degreeToRadian(zf/10.0);
-                            transformation[3]+=degreeToRadian(xo/10.0);
-                            transformation[4]+=degreeToRadian(yo/10.0);
-                            transformation[5]+=degreeToRadian(zo/10.0);
+                            flange_transformation[3]+=degreeToRadian(xf/2.0);
+                            flange_transformation[4]+=degreeToRadian(yf/2.0);
+                            flange_transformation[5]+=degreeToRadian(zf/2.0);
+                            transformation[3]+=degreeToRadian(xo/2.0);
+                            transformation[4]+=degreeToRadian(yo/2.0);
+                            transformation[5]+=degreeToRadian(zo/2.0);
                             TIC();
                             // #pragma omp parallel
                             // #pragma omp for
@@ -475,8 +475,8 @@ int main(int argc, char** argv)
     }
     Optimizer opti = Optimizer(string(argv[1]));
     opti.getInputs();
-    // opti.discreteCombintorialOptimizerTranslation();
-    opti.discreteCombintorialOptimizerRotation();
+    opti.discreteCombintorialOptimizerTranslation();
+    // opti.discreteCombintorialOptimizerRotation();
 	return 0;
 }
 
