@@ -262,8 +262,8 @@ void Optimizer::discreteCombintorialOptimizerTranslation()
     Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
     double min_error = 1e9;
     vector<double> flange_trans(6);
-    int iter_min = -10;
-    int iter_max = 10;
+    int iter_min = -2;
+    int iter_max = 2;
     TIC();
     int iterations = 0;
     vector<double>  optimal_transf_flange,optimal_trans_obj0,optimal_trans_obj1;

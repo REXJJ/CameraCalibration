@@ -248,7 +248,14 @@ void PCLViewer::updateErrorTable()
         cout<<"Error Average: "<<error_avg[i]<<" Error Max: "<<error_max[i]<<endl;
     }
     for(int j=0;j<error_avg.size();j++)
-        htmlString +="<tr><td>"+to_string(j+1)+"</td><td>"+to_string(int(round(error_avg[j]*1000.0)))+"</td><td>"+to_string(int(round(error_max[j]*1000.0)))+"</td></tr>";
+    {
+        double avg_err = int(error_avg[j]*100000.0+0.5)/100.0;
+        double max_err = int(error_max[j]*100000.0+0.5)/100.0;
+        char avg_e[10],max_e[10];
+        sprintf(avg_e,"%.2f",avg_err);
+        sprintf(max_e,"%.2f",max_err);
+        htmlString +="<tr><td>"+to_string(j+1)+"</td><td>"+string(avg_e)+"</td><td>"+string(max_e)+"</td></tr>";
+    }
     htmlString+="</table></body></html>";
     QString html = QString::fromUtf8(htmlString.c_str());
     tb_->setHtml(html);
