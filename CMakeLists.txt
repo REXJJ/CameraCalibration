@@ -40,8 +40,8 @@ set(project_SOURCES src/main.cpp src/pclviewer.cpp src/interface_handler.cpp src
 add_executable(${PROJECT_NAME} ${project_SOURCES})
 target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES} Eigen3::Eigen Qt5::Widgets libnabo::nabo)
 
-# add_executable(optimizer src/optimizer_test.cpp src/helpers.cpp)
-# target_link_libraries(optimizer ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)
+add_executable(optimizer src/optimizer_test.cpp src/helpers.cpp)
+target_link_libraries(optimizer ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)
 
 # add_executable(optimizer_double src/double_object_optimizer_test.cpp src/helpers.cpp)
 # target_link_libraries(optimizer_double ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)
