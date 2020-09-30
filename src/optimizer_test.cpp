@@ -197,16 +197,16 @@ void Optimizer::discreteCombintorialOptimizerTranslation()
     double min_error = 1e9;
     Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
     vector<double> trans(6),flange_trans(6);
-    int iter_min = -10;
-    int iter_max = 10;
+    int iter_min = -25;
+    int iter_max = 25;
     TIC();
     int iterations = 0;
-    for(int xf=iter_min;xf<=iter_max;xf+=2)
-        for(int yf=iter_min;yf<=iter_max;yf+=2)
-            for(int zf=iter_min;zf<=iter_max;zf+=2)
-                for(int xo=iter_min;xo<=iter_max;xo+=2)
-                    for(int yo=iter_min;yo<=iter_max;yo+=2)
-                        for(int zo=iter_min;zo<=iter_max;zo+=2)
+    for(int xf=iter_min;xf<=iter_max;xf+=5)
+        for(int yf=iter_min;yf<=iter_max;yf+=5)
+            for(int zf=iter_min;zf<=iter_max;zf+=5)
+                for(int xo=iter_min;xo<=iter_max;xo+=5)
+                    for(int yo=iter_min;yo<=iter_max;yo+=5)
+                        for(int zo=iter_min;zo<=iter_max;zo+=5)
                         {
                             double err = 0.0;
                             flange_transformation[0]+=xf/1000.0;
@@ -321,7 +321,7 @@ void Optimizer::discreteCombintorialOptimizerTranslation()
                         }
     TOC();
     cout<<"Iterations: "<<iterations<<endl;
-    cout<<"Minimum Error: "<<min_error<<endl;
+    cout<<"Final Minimum Error: "<<min_error<<endl;
     cout<<"Flange Transformation"<<endl;
     for(auto x:flange_trans)
         cout<<x<<" ";
@@ -363,8 +363,8 @@ void Optimizer::discreteCombintorialOptimizerRotation()
     double min_error = 1e9;
     Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
     vector<double> trans(6),flange_trans(6);
-    int iter_min = -4;
-    int iter_max = 4;
+    int iter_min = -1;
+    int iter_max = 1;
     TIC();
     int iterations = 0;
     for(float xf=iter_min;xf<=iter_max;xf+=1)
@@ -375,12 +375,12 @@ void Optimizer::discreteCombintorialOptimizerRotation()
                         for(float zo=iter_min;zo<=iter_max;zo+=1)
                         {
                             double err = 0.0;
-                            flange_transformation[3]+=degreeToRadian(xf/2.0);
-                            flange_transformation[4]+=degreeToRadian(yf/2.0);
-                            flange_transformation[5]+=degreeToRadian(zf/2.0);
-                            transformation[3]+=degreeToRadian(xo/2.0);
-                            transformation[4]+=degreeToRadian(yo/2.0);
-                            transformation[5]+=degreeToRadian(zo/2.0);
+                            flange_transformation[3]+=degreeToRadian(double(xf));
+                            flange_transformation[4]+=degreeToRadian(double(yf));
+                            flange_transformation[5]+=degreeToRadian(double(zf));
+                            transformation[3]+=degreeToRadian(double(xo));
+                            transformation[4]+=degreeToRadian(double(yo));
+                            transformation[5]+=degreeToRadian(double(zo));
                             TIC();
                             // #pragma omp parallel
                             // #pragma omp for
@@ -473,7 +473,7 @@ void Optimizer::discreteCombintorialOptimizerRotation()
                         }
     TOC();
     cout<<"Iterations: "<<iterations<<endl;
-    cout<<"Minimum Error: "<<min_error<<endl;
+    cout<<"Final Minimum Error: "<<min_error<<endl;
     cout<<"Flange Transformation"<<endl;
     for(auto x:flange_trans)
         cout<<x<<" ";
@@ -638,7 +638,7 @@ void Optimizer::discreteCombintorialOptimizerObject()
                         }
     TOC();
     cout<<"Iterations: "<<iterations<<endl;
-    cout<<"Minimum Error: "<<min_error<<endl;
+    cout<<"Final Minimum Error: "<<min_error<<endl;
     cout<<"Flange Transformation"<<endl;
     for(auto x:flange_trans)
         cout<<x<<" ";
@@ -802,7 +802,7 @@ void Optimizer::discreteCombintorialOptimizerCamera()
                         }
     TOC();
     cout<<"Iterations: "<<iterations<<endl;
-    cout<<"Minimum Error: "<<min_error<<endl;
+    cout<<"Final Minimum Error: "<<min_error<<endl;
     cout<<"Flange Transformation"<<endl;
     for(auto x:flange_trans)
         cout<<x<<" ";
@@ -972,7 +972,7 @@ void Optimizer::discreteCombintorialOptimizerSmallBruteForce()
                                                     }
     TOC();
     cout<<"Iterations: "<<iterations<<endl;
-    cout<<"Minimum Error: "<<min_error<<endl;
+    cout<<"Final Minimum Error: "<<min_error<<endl;
     cout<<"Flange Transformation"<<endl;
     for(auto x:flange_trans)
         cout<<x<<" ";
@@ -996,8 +996,9 @@ int main(int argc, char** argv)
     cout<<" Discrete optimization on Translation.."<<endl;
     // opti.discreteCombintorialOptimizerSmallBruteForce();
     opti.discreteCombintorialOptimizerTranslation();
-    opti.discreteCombintorialOptimizerObject();
-    opti.discreteCombintorialOptimizerCamera();
+    opti.discreteCombintorialOptimizerRotation();
+    // opti.discreteCombintorialOptimizerObject();
+    // opti.discreteCombintorialOptimizerCamera();
     return 0;
 }
 
