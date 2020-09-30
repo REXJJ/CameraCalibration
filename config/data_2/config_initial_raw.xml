@@ -26,9 +26,9 @@
     <scan>
         <transformations>
             <approximate_transformation>
-                <angle>rad</angle>
-                <metric>m</metric>
-                <value>0.292327,0.197074,-0.145576,1.622608,-0.000363,0.030400</value>
+                <angle>degree</angle>
+                <metric>cm</metric>
+                <value>28.2,20.0653,-13.5124,93.6039,-0.225452,2.04426</value>
             </approximate_transformation>
         </transformations>
         <metric>mm</metric>
@@ -43,4 +43,3 @@
         </location>
     </scan>
 </data>
-

@@ -29,8 +29,6 @@ class Optimizer
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
         vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloud_downsampled;
         vector<MatrixXd> inverse_kinematics;
-        std::vector<double> transformation;
-        std::vector<double> flange_transformation;
         std::vector<double> transformation_initial;
         std::vector<double> flange_transformation_initial;
         vector<double> getTransVector(boost::property_tree::ptree &pt,string s);
@@ -40,6 +38,10 @@ class Optimizer
         void discreteCombintorialOptimizerTranslation();
         void discreteCombintorialOptimizerRotation();
         void discreteCombintorialOptimizerSmallBruteForce();
+        void discreteCombintorialOptimizerObject();
+        void discreteCombintorialOptimizerCamera();
+        std::vector<double> transformation;
+        std::vector<double> flange_transformation;
 
 };
 
@@ -195,16 +197,16 @@ void Optimizer::discreteCombintorialOptimizerTranslation()
     double min_error = 1e9;
     Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
     vector<double> trans(6),flange_trans(6);
-    int iter_min = -10;
-    int iter_max = 10;
+    int iter_min = -25;
+    int iter_max = 25;
     TIC();
     int iterations = 0;
-    for(int xf=iter_min;xf<=iter_max;xf+=2)
-        for(int yf=iter_min;yf<=iter_max;yf+=2)
-            for(int zf=iter_min;zf<=iter_max;zf+=2)
-                for(int xo=iter_min;xo<=iter_max;xo+=2)
-                    for(int yo=iter_min;yo<=iter_max;yo+=2)
-                        for(int zo=iter_min;zo<=iter_max;zo+=2)
+    for(int xf=iter_min;xf<=iter_max;xf+=5)
+        for(int yf=iter_min;yf<=iter_max;yf+=5)
+            for(int zf=iter_min;zf<=iter_max;zf+=5)
+                for(int xo=iter_min;xo<=iter_max;xo+=5)
+                    for(int yo=iter_min;yo<=iter_max;yo+=5)
+                        for(int zo=iter_min;zo<=iter_max;zo+=5)
                         {
                             double err = 0.0;
                             flange_transformation[0]+=xf/1000.0;
@@ -236,7 +238,7 @@ void Optimizer::discreteCombintorialOptimizerTranslation()
                                 for(int i=0;i<cloud_downsampled[j]->points.size();i++)
                                 {
                                     auto point = cloud_downsampled[j]->points[i];
-#if 1
+#if 0
                                     float src[3];
                                     float out[3];
                                     src[0] = point.x;
@@ -319,13 +321,15 @@ void Optimizer::discreteCombintorialOptimizerTranslation()
                         }
     TOC();
     cout<<"Iterations: "<<iterations<<endl;
-    cout<<"Minimum Error: "<<min_error<<endl;
+    cout<<"Final Minimum Error: "<<min_error<<endl;
     cout<<"Flange Transformation"<<endl;
     for(auto x:flange_trans)
         cout<<x<<" ";
     cout<<"Object Transformation"<<endl;
     for(auto x:trans)
         cout<<x<<" ";
+    flange_transformation = flange_trans;
+    transformation = trans;
 }
 
 void Optimizer::discreteCombintorialOptimizerRotation()
@@ -359,8 +363,8 @@ void Optimizer::discreteCombintorialOptimizerRotation()
     double min_error = 1e9;
     Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
     vector<double> trans(6),flange_trans(6);
-    int iter_min = -4;
-    int iter_max = 4;
+    int iter_min = -1;
+    int iter_max = 1;
     TIC();
     int iterations = 0;
     for(float xf=iter_min;xf<=iter_max;xf+=1)
@@ -371,12 +375,12 @@ void Optimizer::discreteCombintorialOptimizerRotation()
                         for(float zo=iter_min;zo<=iter_max;zo+=1)
                         {
                             double err = 0.0;
-                            flange_transformation[3]+=degreeToRadian(xf/2.0);
-                            flange_transformation[4]+=degreeToRadian(yf/2.0);
-                            flange_transformation[5]+=degreeToRadian(zf/2.0);
-                            transformation[3]+=degreeToRadian(xo/2.0);
-                            transformation[4]+=degreeToRadian(yo/2.0);
-                            transformation[5]+=degreeToRadian(zo/2.0);
+                            flange_transformation[3]+=degreeToRadian(double(xf));
+                            flange_transformation[4]+=degreeToRadian(double(yf));
+                            flange_transformation[5]+=degreeToRadian(double(zf));
+                            transformation[3]+=degreeToRadian(double(xo));
+                            transformation[4]+=degreeToRadian(double(yo));
+                            transformation[5]+=degreeToRadian(double(zo));
                             TIC();
                             // #pragma omp parallel
                             // #pragma omp for
@@ -469,7 +473,7 @@ void Optimizer::discreteCombintorialOptimizerRotation()
                         }
     TOC();
     cout<<"Iterations: "<<iterations<<endl;
-    cout<<"Minimum Error: "<<min_error<<endl;
+    cout<<"Final Minimum Error: "<<min_error<<endl;
     cout<<"Flange Transformation"<<endl;
     for(auto x:flange_trans)
         cout<<x<<" ";
@@ -479,6 +483,334 @@ void Optimizer::discreteCombintorialOptimizerRotation()
         cout<<x<<" ";
     cout<<endl;
     cout<<degreeToRadian(1)<<endl;
+}
+
+void Optimizer::discreteCombintorialOptimizerObject()
+{
+    int K = 1;
+    MatrixXf M = MatrixXf::Zero(3, cloud->points.size());
+    for(int i=0;i<cloud->points.size();i++)
+    {
+        auto pt = cloud->points[i];
+        M(0,i) = pt.x;
+        M(1,i) = pt.y;
+        M(2,i) = pt.z;
+    }
+    NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
+    //Setting up the structures.
+    vector<MatrixXf> Ns;
+    vector<MatrixXi> indis;
+    vector<MatrixXf> dists;
+    for(int i=0;i<clouds.size();i++)
+    {
+        MatrixXf N = MatrixXf::Zero(3, cloud_downsampled[i]->points.size());
+        Ns.push_back(N);
+        MatrixXi indices;
+        MatrixXf dists2;
+        indices.resize(1, Ns[i].cols());
+        dists2.resize(1, Ns[i].cols());
+        indis.push_back(indices);
+        dists.push_back(dists2);
+        cout<<"Points Size: "<<cloud_downsampled[i]->points.size()<<endl;
+    }
+    double min_error = 1e9;
+    Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
+    vector<double> trans(6),flange_trans(6);
+    int iter_min = -10;
+    int iter_max = 10;
+    TIC();
+    int iterations = 0;
+    for(int xc=iter_min;xc<iter_max;xc+=2)
+    for(int yc=iter_min;yc<iter_max;yc+=2)
+    for(int zc=iter_min;zc<iter_max;zc+=2)
+    for(int xr=iter_min;xr<iter_max;xr+=2)
+    for(int yr=iter_min;yr<iter_max;yr+=2)
+    for(int zr=iter_min;zr<iter_max;zr+=2)
+                        {
+                            double err = 0.0;
+                            transformation[0]+=xc/1000.0;
+                            transformation[1]+=yc/1000.0;
+                            transformation[2]+=zc/1000.0;
+                            transformation[3]+=degreeToRadian(xr/5.0);
+                            transformation[4]+=degreeToRadian(yr/5.0);
+                            transformation[5]+=degreeToRadian(zr/5.0);
+                            TIC();
+                            // #pragma omp parallel
+                            // #pragma omp for
+                            for(int j=0;j<clouds.size();j++)
+                            {
+                                float average = 0.0;
+                                float maximum = -1e9;
+                                int counter = 0;
+                                Eigen::MatrixXd world_T_object = vectorToTransformationMatrix(transformation);
+                                Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation);
+                                Eigen::MatrixXd transformation = inverse_kinematics[j]*cam_T_flange;
+                                world_T_object = world_T_object.inverse();
+                                Eigen::Affine3d trans;
+                                for(int a=0;a<3;a++)
+                                    for(int b=0;b<4;b++)
+                                        trans(a,b) = transformation(a,b);
+                                Eigen::Affine3d transW;
+                                for(int a=0;a<3;a++)
+                                    for(int b=0;b<4;b++)
+                                        transW(a,b) = world_T_object(a,b);
+                                for(int i=0;i<cloud_downsampled[j]->points.size();i++)
+                                {
+                                    auto point = cloud_downsampled[j]->points[i];
+#if 0
+                                    float src[3];
+                                    float out[3];
+                                    src[0] = point.x;
+                                    src[1] = point.y;
+                                    src[2] = point.z;
+                                    apply_transformation_optimized(src,out,trans);
+                                    src[0] = out[0];
+                                    src[1] = out[1];
+                                    src[2] = out[2];
+                                    apply_transformation_optimized(src,out,transW);
+                                    Ns[j](0,i) = out[0];
+                                    Ns[j](1,i) = out[1];
+                                    Ns[j](2,i) = out[2];
+#else
+                                    pts(0,0)=point.x;
+                                    pts(0,1)=point.y;
+                                    pts(0,2)=point.z;
+                                    pts=apply_transformation(pts,transformation);
+                                    pts=apply_transformation(pts,world_T_object);
+                                    Ns[j](0,i) = pts(0,0);
+                                    Ns[j](1,i) = pts(0,1);
+                                    Ns[j](2,i) = pts(0,2);
+#endif
+                                    counter++;
+                                }
+
+                                nns->knn(Ns[j], indis[j],dists[j], 1, 0.1, NNSearchF::SORT_RESULTS);
+
+                                for(int i=0;i<counter;i++)
+                                {
+                                    double distance = sqrt(dists[j](0,i));
+                                    if(maximum<distance)
+                                        maximum=distance;
+                                    average+=distance;
+                                }
+                                average=average/counter;
+                                err = err + average;
+                            }
+                            if(err<min_error)
+                            {
+                                min_error = err;
+                                flange_trans = flange_transformation;
+                                trans = transformation;
+                            }
+                            if(iterations%100000==0)
+                            {
+                                cout<<"Iteration: "<<iterations<<endl;
+                                cout<<"Minimum Error: "<<min_error<<endl;
+                                cout<<"Flange Transformation"<<endl;
+                                for(auto x:flange_trans)
+                                    cout<<x<<" ";
+                                cout<<endl;
+                                cout<<"Object Transformation"<<endl;
+                                for(auto x:trans)
+                                    cout<<x<<" ";
+                                cout<<endl;
+                                ofstream ofile("temp.tmp",std::ios_base::app);
+                                ofile<<"Iteration: "<<iterations<<endl;
+                                ofile<<"Minimum Error: "<<min_error<<endl;
+                                ofile<<"Flange Transformation"<<endl;
+                                for(auto x:flange_trans)
+                                    ofile<<x<<" ";
+                                ofile<<endl;
+                                ofile<<"Object Transformation"<<endl;
+                                for(auto x:trans)
+                                    ofile<<x<<" ";
+                                ofile<<endl;
+                                sleep(10);
+                                cout<<"Sleep Over"<<endl;
+                            }
+                            transformation[0]-=xc/1000.0;
+                            transformation[1]-=yc/1000.0;
+                            transformation[2]-=zc/1000.0;
+                            transformation[3]-=degreeToRadian(xr/5.0);
+                            transformation[4]-=degreeToRadian(yr/5.0);
+                            transformation[5]-=degreeToRadian(zr/5.0);
+                            iterations++;
+                        }
+    TOC();
+    cout<<"Iterations: "<<iterations<<endl;
+    cout<<"Final Minimum Error: "<<min_error<<endl;
+    cout<<"Flange Transformation"<<endl;
+    for(auto x:flange_trans)
+        cout<<x<<" ";
+    cout<<"Object Transformation"<<endl;
+    for(auto x:trans)
+        cout<<x<<" ";
+    flange_transformation = flange_trans;
+    transformation = trans;
+}
+
+void Optimizer::discreteCombintorialOptimizerCamera()
+{
+    int K = 1;
+    MatrixXf M = MatrixXf::Zero(3, cloud->points.size());
+    for(int i=0;i<cloud->points.size();i++)
+    {
+        auto pt = cloud->points[i];
+        M(0,i) = pt.x;
+        M(1,i) = pt.y;
+        M(2,i) = pt.z;
+    }
+    NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
+    //Setting up the structures.
+    vector<MatrixXf> Ns;
+    vector<MatrixXi> indis;
+    vector<MatrixXf> dists;
+    for(int i=0;i<clouds.size();i++)
+    {
+        MatrixXf N = MatrixXf::Zero(3, cloud_downsampled[i]->points.size());
+        Ns.push_back(N);
+        MatrixXi indices;
+        MatrixXf dists2;
+        indices.resize(1, Ns[i].cols());
+        dists2.resize(1, Ns[i].cols());
+        indis.push_back(indices);
+        dists.push_back(dists2);
+        cout<<"Points Size: "<<cloud_downsampled[i]->points.size()<<endl;
+    }
+    double min_error = 1e9;
+    Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
+    vector<double> trans(6),flange_trans(6);
+    int iter_min = -10;
+    int iter_max = 10;
+    TIC();
+    int iterations = 0;
+    for(int xc=iter_min;xc<iter_max;xc+=2)
+    for(int yc=iter_min;yc<iter_max;yc+=2)
+    for(int zc=iter_min;zc<iter_max;zc+=2)
+    for(int xr=iter_min;xr<iter_max;xr+=2)
+    for(int yr=iter_min;yr<iter_max;yr+=2)
+    for(int zr=iter_min;zr<iter_max;zr+=2)
+                        {
+                            double err = 0.0;
+                            flange_transformation[0]+=xc/1000.0;
+                            flange_transformation[1]+=yc/1000.0;
+                            flange_transformation[2]+=zc/1000.0;
+                            flange_transformation[3]+=degreeToRadian(xr/5.0);
+                            flange_transformation[4]+=degreeToRadian(yr/5.0);
+                            flange_transformation[5]+=degreeToRadian(zr/5.0);
+                            TIC();
+                            // #pragma omp parallel
+                            // #pragma omp for
+                            for(int j=0;j<clouds.size();j++)
+                            {
+                                float average = 0.0;
+                                float maximum = -1e9;
+                                int counter = 0;
+                                Eigen::MatrixXd world_T_object = vectorToTransformationMatrix(transformation);
+                                Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation);
+                                Eigen::MatrixXd transformation = inverse_kinematics[j]*cam_T_flange;
+                                world_T_object = world_T_object.inverse();
+                                Eigen::Affine3d trans;
+                                for(int a=0;a<3;a++)
+                                    for(int b=0;b<4;b++)
+                                        trans(a,b) = transformation(a,b);
+                                Eigen::Affine3d transW;
+                                for(int a=0;a<3;a++)
+                                    for(int b=0;b<4;b++)
+                                        transW(a,b) = world_T_object(a,b);
+                                for(int i=0;i<cloud_downsampled[j]->points.size();i++)
+                                {
+                                    auto point = cloud_downsampled[j]->points[i];
+#if 0
+                                    float src[3];
+                                    float out[3];
+                                    src[0] = point.x;
+                                    src[1] = point.y;
+                                    src[2] = point.z;
+                                    apply_transformation_optimized(src,out,trans);
+                                    src[0] = out[0];
+                                    src[1] = out[1];
+                                    src[2] = out[2];
+                                    apply_transformation_optimized(src,out,transW);
+                                    Ns[j](0,i) = out[0];
+                                    Ns[j](1,i) = out[1];
+                                    Ns[j](2,i) = out[2];
+#else
+                                    pts(0,0)=point.x;
+                                    pts(0,1)=point.y;
+                                    pts(0,2)=point.z;
+                                    pts=apply_transformation(pts,transformation);
+                                    pts=apply_transformation(pts,world_T_object);
+                                    Ns[j](0,i) = pts(0,0);
+                                    Ns[j](1,i) = pts(0,1);
+                                    Ns[j](2,i) = pts(0,2);
+#endif
+                                    counter++;
+                                }
+
+                                nns->knn(Ns[j], indis[j],dists[j], 1, 0.1, NNSearchF::SORT_RESULTS);
+
+                                for(int i=0;i<counter;i++)
+                                {
+                                    double distance = sqrt(dists[j](0,i));
+                                    if(maximum<distance)
+                                        maximum=distance;
+                                    average+=distance;
+                                }
+                                average=average/counter;
+                                err = err + average;
+                            }
+                            if(err<min_error)
+                            {
+                                min_error = err;
+                                flange_trans = flange_transformation;
+                                trans = transformation;
+                            }
+                            if(iterations%100000==0)
+                            {
+                                cout<<"Iteration: "<<iterations<<endl;
+                                cout<<"Minimum Error: "<<min_error<<endl;
+                                cout<<"Flange Transformation"<<endl;
+                                for(auto x:flange_trans)
+                                    cout<<x<<" ";
+                                cout<<endl;
+                                cout<<"Object Transformation"<<endl;
+                                for(auto x:trans)
+                                    cout<<x<<" ";
+                                cout<<endl;
+                                ofstream ofile("temp.tmp",std::ios_base::app);
+                                ofile<<"Iteration: "<<iterations<<endl;
+                                ofile<<"Minimum Error: "<<min_error<<endl;
+                                ofile<<"Flange Transformation"<<endl;
+                                for(auto x:flange_trans)
+                                    ofile<<x<<" ";
+                                ofile<<endl;
+                                ofile<<"Object Transformation"<<endl;
+                                for(auto x:trans)
+                                    ofile<<x<<" ";
+                                ofile<<endl;
+                                sleep(10);
+                                cout<<"Sleep Over"<<endl;
+                            }
+                            flange_transformation[0]-=xc/1000.0;
+                            flange_transformation[1]-=yc/1000.0;
+                            flange_transformation[2]-=zc/1000.0;
+                            flange_transformation[3]-=degreeToRadian(xr/5.0);
+                            flange_transformation[4]-=degreeToRadian(yr/5.0);
+                            flange_transformation[5]-=degreeToRadian(zr/5.0);
+                            iterations++;
+                        }
+    TOC();
+    cout<<"Iterations: "<<iterations<<endl;
+    cout<<"Final Minimum Error: "<<min_error<<endl;
+    cout<<"Flange Transformation"<<endl;
+    for(auto x:flange_trans)
+        cout<<x<<" ";
+    cout<<"Object Transformation"<<endl;
+    for(auto x:trans)
+        cout<<x<<" ";
+    flange_transformation = flange_trans;
+    transformation = trans;
 }
 
 void Optimizer::discreteCombintorialOptimizerSmallBruteForce()
@@ -640,7 +972,7 @@ void Optimizer::discreteCombintorialOptimizerSmallBruteForce()
                                                     }
     TOC();
     cout<<"Iterations: "<<iterations<<endl;
-    cout<<"Minimum Error: "<<min_error<<endl;
+    cout<<"Final Minimum Error: "<<min_error<<endl;
     cout<<"Flange Transformation"<<endl;
     for(auto x:flange_trans)
         cout<<x<<" ";
@@ -664,6 +996,9 @@ int main(int argc, char** argv)
     cout<<" Discrete optimization on Translation.."<<endl;
     // opti.discreteCombintorialOptimizerSmallBruteForce();
     opti.discreteCombintorialOptimizerTranslation();
+    opti.discreteCombintorialOptimizerRotation();
+    // opti.discreteCombintorialOptimizerObject();
+    // opti.discreteCombintorialOptimizerCamera();
     return 0;
 }
 
