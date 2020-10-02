@@ -11,6 +11,7 @@
 #include <omp.h>
 #include <iostream>
 #include <gdcpp.h>
+#include <fstream>
 
 using namespace Nabo;
 using namespace Eigen;
@@ -21,6 +22,8 @@ using namespace InterfaceUtilities;
 
 typedef pcl::PointXYZRGB PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
+
+std::ofstream outfile;
 
 class Optimizer
 {
@@ -363,6 +366,8 @@ void gradientDescentObject()
         << " Iterations: " << result.iterations << std::endl;
     std::cout << "Final fval: " << result.fval << std::endl;
     std::cout << "Final xval: " << result.xval.transpose() << std::endl;
+    std::cout<<"---------------------------------------------------------"<<endl;
+
 }
 
 void gradientDescent()
@@ -402,7 +407,15 @@ void gradientDescent()
         << " Iterations: " << result.iterations << std::endl;
     std::cout << "Final fval: " << result.fval << std::endl;
     std::cout << "Final xval: " << result.xval.transpose() << std::endl;
+    
+    outfile << "Done! Converged: " << (result.converged ? "true" : "false")
+        << " Iterations: " << result.iterations << std::endl;
+    outfile << "Final fval: " << result.fval << std::endl;
+    outfile << "Final xval: " << result.xval.transpose() << std::endl;
+    outfile.close();
 }
+
+
 
 int main(int argc, char** argv)
 {
@@ -411,7 +424,10 @@ int main(int argc, char** argv)
         std::cout<<"Usage: optimizer_test <config file>"<<endl;
         exit(-1);
     }
+    outfile.open("gd_outputs.txt", std::ios_base::app); // append instead of overwrite
+    outfile << "Results: \n"; 
     k_Filename = argv[1];
+    outfile<<k_Filename<<endl;
     opti = Optimizer(k_Filename);
     opti.getInputs();
     gradientDescentObject();
