@@ -48,3 +48,6 @@ target_link_libraries(optimizer ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)
 
 add_executable(gd_optimizer src/gradient_descent_test.cpp src/helpers.cpp)
 target_link_libraries(gd_optimizer  ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)
+
+add_executable(gd_optimizer_ransac src/gradient_descent_ransac.cpp src/helpers.cpp)
+target_link_libraries(gd_optimizer_ransac  ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)
