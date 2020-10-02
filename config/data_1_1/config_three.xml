@@ -6,7 +6,7 @@
             <approximate_transformation>
                 <angle>rad</angle>
                 <metric>m</metric>
-                <value>0.0165, 0.0972, 0.0308, 3.1301, -0.0059, 1.6067</value>
+                <value>0.0233887,0.0877841,0.0225046,3.13081,-0.00342479,1.60008</value>
             </approximate_transformation>
         </transformations>
         <metric>m</metric>

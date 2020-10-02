@@ -11,7 +11,6 @@
         </transformations>
         <metric>m</metric>
         <clouds>
-            cleaned
             <pointcloud>../data/Part_1_1/pointcloud/cleaned_1.ply</pointcloud>
             <pointcloud>../data/Part_1_1/pointcloud/cleaned_2.ply</pointcloud>
             <pointcloud>../data/Part_1_1/pointcloud/cleaned_3.ply</pointcloud>

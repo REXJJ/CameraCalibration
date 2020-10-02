@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<data>
+    <camera>
+        <transformations>
+            <inverse_kinematics>../data/Part_3_1/BaseToFlange.txt</inverse_kinematics>
+            <approximate_transformation>
+                <angle>rad</angle>
+                <metric>m</metric>
+                <value>0.0168038,0.0907302,0.0323304,3.13015,-0.00536114,1.61071</value>
+            </approximate_transformation>
+        </transformations>
+        <metric>m</metric>
+        <clouds>
+            <pointcloud>../data/Part_3_1/pointcloud/cleaned_1.ply</pointcloud>
+            <pointcloud>../data/Part_3_1/pointcloud/cleaned_2.ply</pointcloud>
+            <pointcloud>../data/Part_3_1/pointcloud/cleaned_3.ply</pointcloud>
+            <pointcloud>../data/Part_3_1/pointcloud/cleaned_4.ply</pointcloud>
+            <pointcloud>../data/Part_3_1/pointcloud/cleaned_5.ply</pointcloud>
+            <pointcloud>../data/Part_3_1/pointcloud/cleaned_6.ply</pointcloud>
+            <pointcloud>../data/Part_3_1/pointcloud/cleaned_7.ply</pointcloud>
+            <pointcloud>../data/Part_3_1/pointcloud/cleaned_8.ply</pointcloud>
+            <pointcloud>../data/Part_3_1/pointcloud/cleaned_9.ply</pointcloud>
+            <pointcloud>../data/Part_3_1/pointcloud/cleaned_10.ply</pointcloud>
+            <pointcloud>../data/Part_3_1/pointcloud/cleaned_11.ply</pointcloud>
+        </clouds>
+    </camera>
+    <scan>
+        <transformations>
+            <approximate_transformation>
+                <angle>rad</angle>
+                <metric>m</metric>
+                <value>1.2302,0.103606,-0.156869,0.0652517,-0.00918812,0.00434907</value>
+            </approximate_transformation>
+        </transformations>
+        <metric>mm</metric>
+        <clouds>
+            <pointcloud>../data/Part_3/part_3.xyz</pointcloud>
+        </clouds>
+        <location>
+            <initial>698.31, -57.51, -91.90</initial>
+            <initial>677.28, -218.51, -74.32</initial>
+            <initial>669.68, -472.51, -70.00</initial>
+            <initial>663.18, -626.03, -72.69</initial>
+        </location>
+    </scan>
+</data>
+
