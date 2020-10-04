@@ -131,6 +131,8 @@ class PCLViewer : public QMainWindow
         bool apply_svd_;
         bool identify_good_points_;
         int z_threshold_;
+        bool use_plane_;
+        vector<double> plane_;
 
     private:
         Ui::PCLViewer *ui_;

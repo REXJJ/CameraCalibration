@@ -38,7 +38,10 @@ PCLViewer::PCLViewer (QWidget *parent) :
     identify_good_points_ = false;
     algorithm_ = 0;
     z_threshold_ = 100;
-    viewer_.reset (new pcl::visualization::PCLVisualizer ("viewer", false));
+    use_plane_ = true;
+    // plane_ = {-0.00633336,-0.00398806,0.999972,0.194004};
+    plane_ = {-0.0071155,-0.00296555,0.999828,0.194745};
+        viewer_.reset (new pcl::visualization::PCLVisualizer ("viewer", false));
     // if(QCoreApplication::arguments().size()!=2)
     // {
     //     cout<<"Usage: ./pcl_visualizer <config file path> "<<endl;

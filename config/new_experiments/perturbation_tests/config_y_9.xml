@@ -6,7 +6,7 @@
             <approximate_transformation>
                 <angle>rad</angle>
                 <metric>m</metric>
-                <value>0.0165, 0.0972, 0.0308, 3.1301, -0.0059, 1.6067</value>
+                <value>0.0165, 0.1062, 0.0308, 3.1301, -0.0059, 1.6067</value>
             </approximate_transformation>
         </transformations>
         <metric>m</metric>
@@ -21,28 +21,6 @@
             <pointcloud>../data/plane/pointcloud/pos_8.ply</pointcloud>
             <pointcloud>../data/plane/pointcloud/pos_9.ply</pointcloud>
             <pointcloud>../data/plane/pointcloud/pos_10.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_11.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_12.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_13.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_14.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_15.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_16.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_17.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_18.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_19.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_20.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_21.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_22.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_23.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_24.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_26.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_27.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_28.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_29.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_30.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_32.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_33.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_35.ply</pointcloud>
         </clouds>
     </camera>
     <scan>

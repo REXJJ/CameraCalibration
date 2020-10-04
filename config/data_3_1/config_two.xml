@@ -29,7 +29,7 @@
             <approximate_transformation>
                 <angle>rad</angle>
                 <metric>m</metric>
-                <value>1.2302,0.103606,-0.156869,0.0652517,-0.00918812,0.00434907</value>
+                <value>1.23073,0.102196,-0.148955,0.06318,-0.0115889,0.00432335</value>
             </approximate_transformation>
         </transformations>
         <metric>mm</metric>
