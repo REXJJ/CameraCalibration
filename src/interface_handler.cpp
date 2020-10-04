@@ -179,6 +179,16 @@ void PCLViewer::setupViz()
     cout<<"Viewer Set"<<endl;
     viewer_->registerPointPickingCallback (&PCLViewer::pointPickingEventOccurred,*this);
     cout<<"Callback Done"<<endl;
+    if(use_plane_)
+    {
+        pcl::ModelCoefficients::Ptr plane_1 (new pcl::ModelCoefficients);
+        plane_1->values.resize (4);
+        plane_1->values[0] = plane_[0];
+        plane_1->values[1] = plane_[1];
+        plane_1->values[2] = plane_[2];
+        plane_1->values[3] = plane_[3];
+        viewer_->addPlane (*plane_1, "plane_1", 0);
+    }
     ui_->qvtkWidget->update ();
     cout<<"QT Set"<<endl;
 }

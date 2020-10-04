@@ -252,101 +252,157 @@ void PCLViewer::findSeedPoints()
     }
 }
 
+double pointToPlaneDistanceD(vector<double> plane, vector<double> pt)
+{
+    return fabs(plane[0]*pt[0]+plane[1]*pt[1]+plane[2]*pt[2]+plane[3])/(sqrt(pow(plane[0],2)+pow(plane[1],2)+pow(plane[2],2)));
+}
+
+
 void PCLViewer::showErrorsInPoints()
 {
-    int K = 1;
-    MatrixXf M = MatrixXf::Zero(3, cloud_->points.size());
-    for(int i=0;i<cloud_->points.size();i++)
+    if(use_plane_==false)
     {
-        auto pt = cloud_->points[i];
-        M(0,i) = pt.x;
-        M(1,i) = pt.y;
-        M(2,i) = pt.z;
-    }
-    NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
-    Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
-    vector<PointCloudT::Ptr> processed;
-    for(int j=0;j<clouds_.size();j++)
-    {
-        PointCloudT::Ptr cloud_temp(new PointCloudT);
-        if(selected_clouds_[j]==false)
+        int K = 1;
+        MatrixXf M = MatrixXf::Zero(3, cloud_->points.size());
+        for(int i=0;i<cloud_->points.size();i++)
         {
-            processed.push_back(cloud_temp);
-            continue;
+            auto pt = cloud_->points[i];
+            M(0,i) = pt.x;
+            M(1,i) = pt.y;
+            M(2,i) = pt.z;
         }
-        float average = 0.0;
-        float maximum = -1e9;
-        int counter = 0;
-        Eigen::MatrixXd world_T_object = vectorToTransformationMatrix(transformation_);
-        Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation_);
-        Eigen::MatrixXd transformation = inverse_kinematics_[j]*cam_T_flange;
-        world_T_object = world_T_object.inverse();
-        MatrixXf N = MatrixXf::Zero(3, clouds_[j]->points.size());
-        Eigen::Affine3d trans;
-        for(int a=0;a<3;a++)
-            for(int b=0;b<4;b++)
-                trans(a,b) = transformation(a,b);
-        Eigen::Affine3d transW;
-        for(int a=0;a<3;a++)
-            for(int b=0;b<4;b++)
-                transW(a,b) = world_T_object(a,b);
-        for(int i=0;i<clouds_[j]->points.size();i++)
+        NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
+        Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
+        vector<PointCloudT::Ptr> processed;
+        for(int j=0;j<clouds_.size();j++)
         {
-            auto point = clouds_[j]->points[i];
-#if 1
-            float src[3];
-            float out[3];
-            src[0] = point.x;
-            src[1] = point.y;
-            src[2] = point.z;
-            apply_transformation_optimized(src,out,trans);
-            src[0] = out[0];
-            src[1] = out[1];
-            src[2] = out[2];
-            apply_transformation_optimized(src,out,transW);
-            N(0,i) = out[0];
-            N(1,i) = out[1];
-            N(2,i) = out[2];
-#else
-            pts(0,0)=point.x;
-            pts(0,1)=point.y;
-            pts(0,2)=point.z;
-            pts=apply_transformation(pts,transformation);
-            pts=apply_transformation(pts,world_T_object);
-            N(0,i) = pts(0,0);
-            N(1,i) = pts(0,1);
-            N(2,i) = pts(0,2);
-#endif
-            counter++;
-        }
-        MatrixXi indices;
-        MatrixXf dists2;
-        indices.resize(1, N.cols());
-        dists2.resize(1, N.cols());
-        nns->knn(N, indices, dists2, 1, 0, NNSearchF::SORT_RESULTS);
-        for(int i=0;i<counter;i++)
-        {
-            double distance = sqrt(dists2(0,i));
-            auto point = clouds_[j]->points[i];
-            point.r = 0;
-            point.g = 0;
-            point.b = 0;
-            if(distance*1000.0<2.5)
-                point.g=255;
-            else if(distance*1000.0<5.0)
-                point.b=255;
-            else if(distance*1000.0<10.0)
+            PointCloudT::Ptr cloud_temp(new PointCloudT);
+            if(selected_clouds_[j]==false)
             {
-                point.r = 100;
-                point.g = 100;
+                processed.push_back(cloud_temp);
+                continue;
             }
-            else
-                point.r=255;
-            cloud_temp->points.push_back(point);
+            float average = 0.0;
+            float maximum = -1e9;
+            int counter = 0;
+            Eigen::MatrixXd world_T_object = vectorToTransformationMatrix(transformation_);
+            Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation_);
+            Eigen::MatrixXd transformation = inverse_kinematics_[j]*cam_T_flange;
+            world_T_object = world_T_object.inverse();
+            MatrixXf N = MatrixXf::Zero(3, clouds_[j]->points.size());
+            Eigen::Affine3d trans;
+            for(int a=0;a<3;a++)
+                for(int b=0;b<4;b++)
+                    trans(a,b) = transformation(a,b);
+            Eigen::Affine3d transW;
+            for(int a=0;a<3;a++)
+                for(int b=0;b<4;b++)
+                    transW(a,b) = world_T_object(a,b);
+            for(int i=0;i<clouds_[j]->points.size();i++)
+            {
+                auto point = clouds_[j]->points[i];
+#if 1
+                float src[3];
+                float out[3];
+                src[0] = point.x;
+                src[1] = point.y;
+                src[2] = point.z;
+                apply_transformation_optimized(src,out,trans);
+                src[0] = out[0];
+                src[1] = out[1];
+                src[2] = out[2];
+                apply_transformation_optimized(src,out,transW);
+                N(0,i) = out[0];
+                N(1,i) = out[1];
+                N(2,i) = out[2];
+#else
+                pts(0,0)=point.x;
+                pts(0,1)=point.y;
+                pts(0,2)=point.z;
+                pts=apply_transformation(pts,transformation);
+                pts=apply_transformation(pts,world_T_object);
+                N(0,i) = pts(0,0);
+                N(1,i) = pts(0,1);
+                N(2,i) = pts(0,2);
+#endif
+                counter++;
+            }
+            MatrixXi indices;
+            MatrixXf dists2;
+            indices.resize(1, N.cols());
+            dists2.resize(1, N.cols());
+            nns->knn(N, indices, dists2, 1, 0, NNSearchF::SORT_RESULTS);
+            for(int i=0;i<counter;i++)
+            {
+                double distance = sqrt(dists2(0,i));
+                auto point = clouds_[j]->points[i];
+                point.r = 0;
+                point.g = 0;
+                point.b = 0;
+                if(distance*1000.0<2.5)
+                    point.g=255;
+                else if(distance*1000.0<5.0)
+                    point.b=255;
+                else if(distance*1000.0<10.0)
+                {
+                    point.r = 100;
+                    point.g = 100;
+                }
+                else
+                    point.r=255;
+                cloud_temp->points.push_back(point);
+            }
+            processed.push_back(cloud_temp);
+            cout<<"Counted "<<counter<<" points."<<endl;
         }
-        processed.push_back(cloud_temp);
-        cout<<"Counted "<<counter<<" points."<<endl;
+        updateClouds(processed);    
     }
-    updateClouds(processed);
+    else
+    {
+        vector<PointCloudT::Ptr> processed;
+        Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
+        for(int j=0;j<clouds_.size();j++)
+        {
+            PointCloudT::Ptr cloud_temp(new PointCloudT);
+            if(selected_clouds_[j]==false)
+            {
+                processed.push_back(cloud_temp);
+                continue;
+            }
+            Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation_);
+            Eigen::MatrixXd transformation = inverse_kinematics_[j]*cam_T_flange;
+            Eigen::Affine3d trans;
+            for(int a=0;a<3;a++)
+                for(int b=0;b<4;b++)
+                    trans(a,b) = transformation(a,b);
+            for(int i=0;i<clouds_[j]->points.size();i++)
+            {
+                auto pt = clouds_[j]->points[i];
+                pts(0,0)=pt.x;
+                pts(0,1)=pt.y;
+                pts(0,2)=pt.z;
+                pts=apply_transformation(pts,transformation);  
+                double distance = pointToPlaneDistanceD(plane_,{pts(0,0),pts(0,1),pts(0,2)});
+                auto point = clouds_[j]->points[i];
+                point.r = 0;
+                point.g = 0;
+                point.b = 0;
+                if(distance*1000.0<2.5)
+                    point.g=255;
+                else if(distance*1000.0<5.0)
+                    point.b=255;
+                else if(distance*1000.0<10.0)
+                {
+                    point.r = 100;
+                    point.g = 100;
+                }
+                else
+                    point.r=255;
+                cloud_temp->points.push_back(point);
+            }
+            processed.push_back(cloud_temp);
+        }
+        updateClouds(processed);    
+    }
 }
 

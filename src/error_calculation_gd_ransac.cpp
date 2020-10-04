@@ -36,7 +36,6 @@ typedef pcl::PointXYZRGB PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
 
 std::ofstream outfile;
-std::ofstream errorfile;
 
 class Optimizer
 {
@@ -63,9 +62,8 @@ class Optimizer
         Optimizer(string filename);
         Optimizer(){};
         void getInputs();
-        double getError(vector<double> ,vector<double>);
+        double getError(vector<double> ,vector<double>,double );
         pcl::PointCloud<pcl::PointXYZ>::Ptr combined_cloud;
-        void printError(vector<double> ,vector<double>);
 };
 
 Optimizer::Optimizer(string filename)
@@ -129,27 +127,6 @@ Eigen::MatrixXd getPlane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
     return parameters;
 }
 
-Eigen::Vector4f fitPlane(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
-{
-  Eigen::MatrixXd lhs (cloud->size(), 3);
-  Eigen::VectorXd rhs (cloud->size());
-  for (size_t i = 0; i < cloud->size(); ++i)
-  {
-    const auto& pt = cloud->points[i];
-    lhs(i, 0) = pt.x;
-    lhs(i, 1) = pt.y;
-    lhs(i, 2) = 1.0;
-
-    rhs(i) = -1.0 * pt.z;
-  }
-  Eigen::Vector3d params = lhs.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(rhs);
-  Eigen::Vector3d normal (params(0), params(1), 1.0);
-  auto length = normal.norm();
-  normal /= length;
-  params(2) /= length;
-  return {normal(0), normal(1), normal(2), params(2)};
-}
-
 double pointToPlaneDistance(vector<double> plane, vector<double> pt)
 {
     return fabs(plane[0]*pt[0]+plane[1]*pt[1]+plane[2]*pt[2]+plane[3])/(sqrt(pow(plane[0],2)+pow(plane[1],2)+pow(plane[2],2)));
@@ -172,6 +149,7 @@ void Optimizer::getInputs()
         string line;
         for(int c=0;c<14&&getline(file,line);c++);
         PointCloudT::Ptr pointcloud(new PointCloudT);
+        double max_z = -1e9,avg_z = 0.0;
         while(getline(file,line))
         {
             vector<string> values_from_file;
@@ -183,8 +161,13 @@ void Optimizer::getInputs()
             pt.r = stof(values_from_file[3]);
             pt.g = stof(values_from_file[4]);
             pt.b = stof(values_from_file[5]);
+            avg_z+=pt.z;
+            if(pt.z>max_z)
+                max_z=pt.z;
             pointcloud->points.push_back(pt);
         }
+        avg_z/=pointcloud->points.size();
+        // cout<<"Max Z : "<<max_z<<" "<<"Avg Z : "<<avg_z<<endl;
         PointCloudT::Ptr temp_cloud(new PointCloudT);
         for(int i=0;i<pointcloud->points.size();i++)
         {
@@ -205,16 +188,23 @@ void Optimizer::getInputs()
         sor.setLeafSize (leaf, leaf, leaf);
         sor.filter (*cloud_filtered);
 #else
-        double distance_threshold = pt.get<double>("data.camera.threshold",0.000001);
-        cout<<distance_threshold<<"-------------------------"<<endl;
-        auto plane = fitPlane(cloud_bw_temp);
+        auto plane = getPlane(cloud_bw_temp);
+        double max_c=-1e9,avg_c=0.0;
         for(auto pt:cloud_bw_temp->points)
         {
-            if(pointToPlaneDistance({plane(0),plane(1),plane(2),plane(3)},{pt.x,pt.y,pt.z})<distance_threshold)
+            double distance = pointToPlaneDistance({plane(0),plane(1),plane(2),plane(3)},{pt.x,pt.y,pt.z});
+            if(distance>max_c)
+                max_c=distance;
+            avg_c+=distance;
+            if(distance < 0.000001)
             {
                 cloud_filtered->points.push_back(pt);
             }
         }
+        avg_c=avg_c/cloud_bw_temp->points.size();
+        double avg_err = int(avg_c*100000.0+0.5)/100.0;
+        double max_err = int(max_c*100000.0+0.5)/100.0;
+        cout<<"Average Error: "<<avg_err<<" "<<"Maximum Error: "<<max_err<<endl;
 #endif
         cout<<"Filtered Clouds Size: "<<cloud_filtered->points.size()<<endl;
         cloud_downsampled.push_back(cloud_filtered);
@@ -272,14 +262,13 @@ void Optimizer::getInputs()
 
 
 
-double Optimizer::getError(vector<double> transformation,vector<double> plane)
+double Optimizer::getError(vector<double> transformation,vector<double> plane,double delta)
 {
     double error = 0.0;
     Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
     for(int j=0;j<clouds.size();j++)
     {
         double average = 0.0;
-        double error_mx = -1e9;
         Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(transformation);
         Eigen::MatrixXd transformation = inverse_kinematics[j]*cam_T_flange;
         Eigen::Affine3d trans;
@@ -293,79 +282,16 @@ double Optimizer::getError(vector<double> transformation,vector<double> plane)
             float out[3];
             src[0] = pt.x;
             src[1] = pt.y;
-            src[2] = pt.z;
+            src[2] = pt.z+delta;
             apply_transformation_optimized(src,out,trans);
-            double distance = pointToPlaneDistance(plane,{out[0],out[1],out[2]});
-            average+=distance;
-            if(distance>error_mx)
-                error_mx = distance;
+            average+=pointToPlaneDistance(plane,{out[0],out[1],out[2]});
         }
-        // error+=average/cloud_downsampled[j]->points.size();
-        error+=error_mx;
+        error+=average/cloud_downsampled[j]->points.size();
     }
     return error/clouds.size();
 }
 
-void Optimizer::printError(vector<double> transformation,vector<double> plane)
-{
-    Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
-    for(int j=0;j<clouds.size();j++)
-    {
-        double average = 0.0;
-        double error_mx = -1e9;
-        Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(transformation);
-        Eigen::MatrixXd transformation = inverse_kinematics[j]*cam_T_flange;
-        Eigen::Affine3d trans;
-        for(int a=0;a<3;a++)
-            for(int b=0;b<4;b++)
-                trans(a,b) = transformation(a,b);
-        for(int i=0;i<cloud_downsampled[j]->points.size();i++)
-        {
-            auto pt = cloud_downsampled[j]->points[i];
-            float src[3];
-            float out[3];
-            src[0] = pt.x;
-            src[1] = pt.y;
-            src[2] = pt.z;
-            apply_transformation_optimized(src,out,trans);
-            double distance = pointToPlaneDistance(plane,{out[0],out[1],out[2]});
-            average+=distance;
-            if(distance>error_mx)
-                error_mx = distance;
-        }
-        // error+=average/cloud_downsampled[j]->points.size();
-        errorfile<<"Downsampled No: "<<j<<" Error Avg: "<<average/cloud_downsampled[j]->points.size()*1000.0<<" Errom Max: "<<error_mx*1000.0<<endl;
-    }
-    
-    for(int j=0;j<clouds.size();j++)
-    {
-        double average = 0.0;
-        double error_mx = -1e9;
-        Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(transformation);
-        Eigen::MatrixXd transformation = inverse_kinematics[j]*cam_T_flange;
-        Eigen::Affine3d trans;
-        for(int a=0;a<3;a++)
-            for(int b=0;b<4;b++)
-                trans(a,b) = transformation(a,b);
-        for(int i=0;i<clouds[j]->points.size();i++)
-        {
-            auto pt = clouds[j]->points[i];
-            float src[3];
-            float out[3];
-            src[0] = pt.x;
-            src[1] = pt.y;
-            src[2] = pt.z;
-            apply_transformation_optimized(src,out,trans);
-            double distance = pointToPlaneDistance(plane,{out[0],out[1],out[2]});
-            average+=distance;
-            if(distance>error_mx)
-                error_mx = distance;
-        }
-        // error+=average/cloud_downsampled[j]->points.size();
-        errorfile<<"Real No: "<<j<<" Error Avg: "<<average/clouds[j]->points.size()*1000.0<<" Errom Max: "<<error_mx*1000.0<<endl;
-    }
-    errorfile<<"--------------------------------------------"<<endl;
-}
+
 
 string k_Filename;
 Optimizer opti;
@@ -387,63 +313,60 @@ void gradientDescent()
             }
             for(int i=6;i<10;i++)
                 plane[i-6]=xval(i);
-            return opti.getError(trans,plane);
+            return opti.getError(trans,plane,xval(10));
         }
     };
     gdc::GradientDescent<double, Ackley,
         gdc::WolfeBacktracking<double>> optimizer;
 
-    optimizer.setMaxIterations(10000);
+    optimizer.setMaxIterations(200);
     optimizer.setMinGradientLength(1e-6);
     optimizer.setMinStepLength(1e-6);
     optimizer.setMomentum(0.4);
     optimizer.setVerbosity(4);
-    Eigen::VectorXd initialGuess = Eigen::VectorXd::Zero(10);
+    Eigen::VectorXd initialGuess = Eigen::VectorXd::Zero(11);
     for(int i=0;i<6;i++)
     {
         initialGuess(i) = opti.flange_transformation[i];
     }
-
-    auto plane = fitPlane(opti.combined_cloud);
-    // pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
-    // viewer->setBackgroundColor (0.2,0.2,0.2);
-    // viewer->initCameraParameters ();
-    // viewer->addPointCloud<pcl::PointXYZ>(opti.combined_cloud);
-    // pcl::ModelCoefficients::Ptr plane_1 (new pcl::ModelCoefficients);
-    // plane_1->values.resize (4);
-    // plane_1->values[0] = plane(0);
-    // plane_1->values[1] = plane(1);
-    // plane_1->values[2] = plane(2);
-    // plane_1->values[3] = plane(3);
-    // viewer->addPlane (*plane_1, "plane_1", 0);
-    // while(!viewer->wasStopped())
-    //         viewer->spinOnce(100);
-    cout<<"Plane Value"<<endl;
+    auto plane = getPlane(opti.combined_cloud);
+    assert(plane(0)==plane(0,0));
+    assert(plane(1)==plane(0,1));
+    assert(plane(2)==plane(0,2));
+    assert(plane(3)==plane(0,3));
+    cout<<"Plane Value ---------------------------------------------"<<endl;
     for(int i=0;i<4;i++)
         cout<<plane(i)<<" ";
     cout<<endl;
     for(int i=0;i<4;i++)
         initialGuess(i+6) = plane(i);
+    initialGuess(10) = 0.001;
     //Get the initial estimate of the plane here and feed it to the optimizer.
+
     auto result = optimizer.minimize(initialGuess);
     std::cout << "Done! Converged: " << (result.converged ? "true" : "false")
         << " Iterations: " << result.iterations << std::endl;
     std::cout << "Final fval: " << result.fval << std::endl;
     std::cout << "Final xval: " << result.xval.transpose() << std::endl;
     std::cout<<"---------------------------------------------------------"<<endl;
-    outfile<<"Iterations: "<<result.iterations<<" Converged: "<<(result.converged ? "true" : "false")<<" Final fval: "<<result.fval<<endl;
-    outfile<<"Flange Transformation"<<endl;
-    auto result_flange_trans = result.xval.transpose().head(6);
-    auto result_plane = result.xval.transpose().tail(4);
-    for(int i=0;i<5;i++)
-        outfile<<result_flange_trans(i)<<", ";
-    outfile<<result_flange_trans(5)<<endl;
-    outfile<<"Plane Equation"<<endl;
-    for(int i=0;i<3;i++)
-        outfile<<result_plane(i)<<", ";
-    outfile<<result_plane(3)<<endl;
-    outfile<<"------------------------------------------------------"<<endl;
-    opti.printError({result_flange_trans(0),result_flange_trans(1),result_flange_trans(2),result_flange_trans(3),result_flange_trans(4),result_flange_trans(5)},{result_plane(0),result_plane(1),result_plane(2),result_plane(3)});
+    
+    pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
+    viewer->setBackgroundColor (0.2,0.2,0.2);
+    viewer->initCameraParameters ();
+    viewer->addPointCloud<pcl::PointXYZ>(opti.combined_cloud);
+    pcl::ModelCoefficients::Ptr plane_1 (new pcl::ModelCoefficients);
+
+    auto new_plane = result.xval.transpose();
+
+    plane_1->values.resize (4);
+    plane_1->values[0] = new_plane (6);
+    plane_1->values[1] = new_plane (7);
+    plane_1->values[2] = new_plane (8);
+    plane_1->values[3] = new_plane (9);
+    viewer->addPlane (*plane_1, "plane_1", 0);
+    while(!viewer->wasStopped())
+            viewer->spinOnce(100);
+
 }
 
 int main(int argc, char** argv)
@@ -453,12 +376,10 @@ int main(int argc, char** argv)
         std::cout<<"Usage: optimizer_test <config file>"<<endl;
         exit(-1);
     }
-    outfile.open("new_experiments.txt", std::ios_base::app); // append instead of overwrite
+    outfile.open("gd_outputs.txt", std::ios_base::app); // append instead of overwrite
+    outfile << "Results: \n"; 
     k_Filename = argv[1];
-    errorfile.open("new_experiments_errors.txt", std::ios_base::app); // append instead of overwrite
-    k_Filename = argv[1];
-    outfile<<"Results: "<<k_Filename<<endl;
-    errorfile<<"Results: "<<k_Filename<<endl;
+    outfile<<k_Filename<<endl;
     opti = Optimizer(k_Filename);
     opti.getInputs();
     gradientDescent();

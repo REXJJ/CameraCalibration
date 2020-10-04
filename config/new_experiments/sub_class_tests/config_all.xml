@@ -40,8 +40,10 @@
             <pointcloud>../data/plane/pointcloud/pos_28.ply</pointcloud>
             <pointcloud>../data/plane/pointcloud/pos_29.ply</pointcloud>
             <pointcloud>../data/plane/pointcloud/pos_30.ply</pointcloud>
+            <pointcloud>../data/plane/pointcloud/pos_31.ply</pointcloud>
             <pointcloud>../data/plane/pointcloud/pos_32.ply</pointcloud>
             <pointcloud>../data/plane/pointcloud/pos_33.ply</pointcloud>
+            <pointcloud>../data/plane/pointcloud/pos_34.ply</pointcloud>
             <pointcloud>../data/plane/pointcloud/pos_35.ply</pointcloud>
         </clouds>
     </camera>
