@@ -219,7 +219,7 @@ void PCLViewer::setupInterface()
         item->setCheckState(Qt::Unchecked);
         items_.push_back(item);
         model_clouds_->setItem(i, item);
-        selected_clouds_.push_back(false);
+        selected_clouds_.push_back(true);
     }
     updateClouds();
     cout<<"Updating Clouds"<<endl;

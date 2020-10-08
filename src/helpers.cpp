@@ -208,7 +208,7 @@ namespace InputUtilities
 
     vector<MatrixXd> readTransformations(string filename,bool affine)
     {
-        string metric="mm";
+        string metric="m";
         cout<<"Inside transformation reader"<<endl;
         vector<MatrixXd> transformations;
         ifstream file(filename);

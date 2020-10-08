@@ -197,11 +197,12 @@ void Optimizer::getInputs()
         sor.filter (*cloud_filtered);
 #else
         double distance_threshold = pt.get<double>("data.camera.threshold",0.000001);
-        cout<<distance_threshold<<"-------------------------"<<endl;
         auto plane = fitPlane(cloud_bw_temp);
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_temp(new pcl::PointCloud<pcl::PointXYZRGB>);
         static int counter = 0;
         counter++;
+        double average = 0.0;
+        double maxx = -1e9;
         for(auto pt:cloud_bw_temp->points)
         {
             auto distance_to_plane = pointToPlaneDistance({plane(0),plane(1),plane(2),plane(3)},{pt.x,pt.y,pt.z});
@@ -226,8 +227,12 @@ void Optimizer::getInputs()
             {
                 cloud_filtered->points.push_back(pt);
             }
+            if(distance_to_plane>maxx)
+                maxx=distance_to_plane;
+            average+=distance_to_plane;
         }
-        if(counter==1||counter==2||counter==4||counter==33)
+        cout<<counter<<","<<int((average/cloud_bw_temp->points.size())*100000.0)/100.0<<","<<int(maxx*100000.0)/100.0<<endl;
+        if(counter==1||counter==2||counter==21)
         {
             pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
             viewer->setBackgroundColor (1.0,1.0,1.0);
@@ -244,11 +249,9 @@ void Optimizer::getInputs()
                 viewer->spinOnce(100);
         }
 #endif
-        cout<<"Filtered Clouds Size: "<<cloud_filtered->points.size()<<endl;
         cloud_downsampled.push_back(cloud_filtered);
         // PointCloudT::Ptr pointcloud_output(new PointCloudT);
         // cloud_outputs.push_back(pointcloud_output);
-        cout<<filename<<endl;
     }
     string ik_filename  = pt.get<std::string>("data.camera.transformations.inverse_kinematics");
     cout<<ik_filename<<endl;
