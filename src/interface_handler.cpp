@@ -157,6 +157,12 @@ void PCLViewer::getInputs()
         flange_transformation_[i]=transformation_initial_flange[i];
         flange_transformation_initial_[i]=transformation_initial_flange[i];
     }
+    auto plane_equation = getPlaneEquation(pt,"data.plane");
+    if(plane_equation.size())
+    {
+        use_plane_ = true;
+        plane_ = plane_equation;
+    }
 }
 
 void PCLViewer::setupViz()
@@ -213,7 +219,7 @@ void PCLViewer::setupInterface()
         item->setCheckState(Qt::Unchecked);
         items_.push_back(item);
         model_clouds_->setItem(i, item);
-        selected_clouds_.push_back(false);
+        selected_clouds_.push_back(true);
     }
     updateClouds();
     cout<<"Updating Clouds"<<endl;

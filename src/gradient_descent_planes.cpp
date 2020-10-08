@@ -216,10 +216,10 @@ void Optimizer::getInputs()
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_bw_temp(new pcl::PointCloud<pcl::PointXYZ>);
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
         pcl::copyPointCloud(*temp_cloud,*cloud_bw_temp);
-#if 1
+#if 0
         pcl::VoxelGrid<pcl::PointXYZ> sor;
         sor.setInputCloud (cloud_bw_temp);
-        constexpr double leaf = 0.02f;
+        constexpr double leaf = 0.0225f;
         // constexpr double leaf = 0.007f;
         sor.setLeafSize (leaf, leaf, leaf);
         sor.filter (*cloud_filtered);
@@ -484,6 +484,48 @@ void gradientDescent()
     opti.printError({result_flange_trans(0),result_flange_trans(1),result_flange_trans(2),result_flange_trans(3),result_flange_trans(4),result_flange_trans(5)},{result_plane(0),result_plane(1),result_plane(2),result_plane(3)});
 }
 
+void test()
+{
+    auto plane = fitPlane(opti.combined_cloud);
+    pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
+    viewer->setBackgroundColor (0.2,0.2,0.2);
+    viewer->initCameraParameters ();
+    viewer->addCoordinateSystem();
+    pcl::ModelCoefficients::Ptr plane_1 (new pcl::ModelCoefficients);
+    plane_1->values.resize (4);
+    plane_1->values[0] = plane(0);
+    plane_1->values[1] = plane(1);
+    plane_1->values[2] = plane(2);
+    plane_1->values[3] = plane(3);
+    viewer->addPlane (*plane_1, "plane_1", 0);
+    vector<double> transformation={5.0,0,0,0,0,0};
+    Eigen::MatrixXd matrix = vectorToTransformationMatrix(transformation);
+    matrix = (matrix.inverse()).transpose();
+    for(int i=0;i<4;i++)
+    {
+        for(int j=0;j<4;j++)
+            cout<<matrix(i,j)<<" ";
+        cout<<endl;
+    }
+    Eigen::Vector4d plane_temp;
+    plane_temp<<plane(0),plane(1),plane(2),plane(3);
+    auto new_plane = matrix*plane_temp;
+    pcl::ModelCoefficients::Ptr plane_2 (new pcl::ModelCoefficients);
+    plane_2->values.resize (4);
+    plane_2->values[0] = new_plane(0);
+    plane_2->values[1] = new_plane(1);
+    plane_2->values[2] = new_plane(2);
+    plane_2->values[3] = new_plane(3);
+    viewer->addPlane (*plane_2, "plane_2", 0);
+    pcl::PointXYZ pt;
+    pt.x = 0;
+    pt.y = 0;
+    pt.z = -plane(3)/plane(2);
+    viewer->addSphere (pt, 0.01, 0.5, 0.5, 0.0, "sphere");
+    while(!viewer->wasStopped())
+            viewer->spinOnce(100);
+}
+
 int main(int argc, char** argv)
 {
     if(argc<2)
@@ -499,7 +541,8 @@ int main(int argc, char** argv)
     errorfile<<"Results: "<<k_Filename<<endl;
     opti = Optimizer(k_Filename);
     opti.getInputs();
-    gradientDescent();
+    // gradientDescent();
+    test();
     return 0;
 }
 

@@ -208,7 +208,7 @@ namespace InputUtilities
 
     vector<MatrixXd> readTransformations(string filename,bool affine)
     {
-        string metric="mm";
+        string metric="m";
         cout<<"Inside transformation reader"<<endl;
         vector<MatrixXd> transformations;
         ifstream file(filename);
@@ -286,6 +286,28 @@ namespace InputUtilities
                 coords.push_back(value);
             }
 
+        for(auto x:coords)
+            cout<<x<<" ";
+        cout<<endl;
+        return coords;
+    }
+    
+    vector<double> getPlaneEquation(boost::property_tree::ptree &pt,string s)
+    {
+        string metric = pt.get<std::string>(s+".metric","m");
+        double cam_approx_scale = 1.0;
+        if(metric=="cm")
+            cam_approx_scale = 100.0;
+        else if(metric=="mm")
+            cam_approx_scale=1000.0;
+        string plane_eq = pt.get<std::string>(s+".value","0,0,0,0");
+        if(plane_eq=="0,0,0,0")
+            return {};
+        vector<string> coords_str;
+        boost::split(coords_str, plane_eq, boost::is_any_of(","));
+        vector<double> coords;
+        for(int i=0;i<coords_str.size();i++)
+                coords.push_back(stof(coords_str[i])/cam_approx_scale);
         for(auto x:coords)
             cout<<x<<" ";
         cout<<endl;

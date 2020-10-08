@@ -54,3 +54,11 @@ target_link_libraries(gd_optimizer_ransac  ${PCL_LIBRARIES} Eigen3::Eigen libnab
 
 add_executable(gd_optimizer_ransac_error_calc src/error_calculation_gd_ransac.cpp src/helpers.cpp)
 target_link_libraries(gd_optimizer_ransac_error_calc   ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)
+
+add_executable(cloud_analyzer src/cloud_analyzer.cpp src/helpers.cpp)
+target_link_libraries(cloud_analyzer ${PCL_LIBRARIES} Eigen3::Eigen)
+
+add_executable(camera_calibration_optimization src/camera_calibration_optimization.cpp src/helpers.cpp)
+target_link_libraries(camera_calibration_optimization ${PCL_LIBRARIES} Eigen3::Eigen)
+
+add_executable(units_converter src/units_converter.cpp)

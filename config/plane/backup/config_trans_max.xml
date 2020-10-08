@@ -6,7 +6,7 @@
             <approximate_transformation>
                 <angle>rad</angle>
                 <metric>m</metric>
-                <value>0.0165, 0.0972, 0.0308, 3.1301, -0.0059, 1.6067</value>
+                <value>0.0165539, 0.096382, 0.0306406, 3.12221, -0.00612324, 1.59405</value>
             </approximate_transformation>
         </transformations>
         <metric>m</metric>
@@ -35,22 +35,10 @@
             <pointcloud>../data/plane/pointcloud/pos_22.ply</pointcloud>
             <pointcloud>../data/plane/pointcloud/pos_23.ply</pointcloud>
             <pointcloud>../data/plane/pointcloud/pos_24.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_25.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_26.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_27.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_28.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_29.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_30.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_31.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_32.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_33.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_34.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_35.ply</pointcloud>
         </clouds>
     </camera>
     <plane>
-        <metric>mm</metric>
-        <value>-7.24, -3.20, 1028.03, 191.836</value>
+        <value>-0.00697637, -0.00296041, 0.99983, 0.194547</value>
     </plane>
     <scan>
         <transformations>

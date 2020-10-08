@@ -6,7 +6,7 @@
             <approximate_transformation>
                 <angle>rad</angle>
                 <metric>m</metric>
-                <value>0.0165, 0.0972, 0.0308, 3.1301, -0.0059, 1.6067</value>
+                <value>0.0234896, 0.0951905, 0.0201839, 3.12524, 9.49362e-05, 1.59457</value>
             </approximate_transformation>
         </transformations>
         <metric>m</metric>
@@ -49,8 +49,7 @@
         </clouds>
     </camera>
     <plane>
-        <metric>mm</metric>
-        <value>-7.24, -3.20, 1028.03, 191.836</value>
+        <value>-0.00693013, -0.00353858, 1.00004, 0.192207</value>
     </plane>
     <scan>
         <transformations>
