@@ -49,8 +49,7 @@
         </clouds>
     </camera>
     <plane>
-        <metric>mm</metric>
-        <value>-7.24, -3.20, 1028.03, 191.836</value>
+        <value>-0.00633336,-0.00398806,0.999972,0.194004</value>
     </plane>
     <scan>
         <transformations>

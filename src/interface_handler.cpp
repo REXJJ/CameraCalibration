@@ -157,6 +157,12 @@ void PCLViewer::getInputs()
         flange_transformation_[i]=transformation_initial_flange[i];
         flange_transformation_initial_[i]=transformation_initial_flange[i];
     }
+    auto plane_equation = getPlaneEquation(pt,"data.plane");
+    if(plane_equation.size())
+    {
+        use_plane_ = true;
+        plane_ = plane_equation;
+    }
 }
 
 void PCLViewer::setupViz()

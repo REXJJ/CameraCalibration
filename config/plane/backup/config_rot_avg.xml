@@ -6,35 +6,11 @@
             <approximate_transformation>
                 <angle>rad</angle>
                 <metric>m</metric>
-                <value>0.0165, 0.0972, 0.0308, 3.1301, -0.0059, 1.6067</value>
+                <value>0.0234896, 0.0951905, 0.0201839, 3.12524, 9.49362e-05, 1.59457</value>
             </approximate_transformation>
         </transformations>
         <metric>m</metric>
         <clouds>
-            <pointcloud>../data/plane/pointcloud/pos_1.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_2.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_3.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_4.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_5.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_6.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_7.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_8.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_9.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_10.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_11.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_12.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_13.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_14.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_15.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_16.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_17.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_18.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_19.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_20.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_21.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_22.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_23.ply</pointcloud>
-            <pointcloud>../data/plane/pointcloud/pos_24.ply</pointcloud>
             <pointcloud>../data/plane/pointcloud/pos_25.ply</pointcloud>
             <pointcloud>../data/plane/pointcloud/pos_26.ply</pointcloud>
             <pointcloud>../data/plane/pointcloud/pos_27.ply</pointcloud>
@@ -49,8 +25,7 @@
         </clouds>
     </camera>
     <plane>
-        <metric>mm</metric>
-        <value>-7.24, -3.20, 1028.03, 191.836</value>
+        <value>-0.00693013, -0.00353858, 1.00004, 0.192207</value>
     </plane>
     <scan>
         <transformations>

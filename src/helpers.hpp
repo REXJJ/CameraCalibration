@@ -291,6 +291,7 @@ namespace InputUtilities
     void readPointCloud(string filename, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,string metric="m");
     vector<MatrixXd> readTransformations(string filename,bool affine=false);
     vector<double> getTransVector(boost::property_tree::ptree &pt,string s);
+    vector<double> getPlaneEquation(boost::property_tree::ptree &pt,string s);
 };
 
 namespace InterfaceUtilities 
