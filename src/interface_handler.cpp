@@ -18,6 +18,23 @@ using namespace InputUtilities;
 using namespace InterfaceUtilities;
 using namespace Nabo;
 
+string getSplit(string name, string character,int id)
+{
+    vector<string> values;
+    boost::split(values,name,boost::is_any_of(character));
+    if(id<0)
+        id = values.size()+id;
+    return values[id];
+}
+
+int getFileId(string filename)
+{
+    string file = getSplit(filename,"/",-1);
+    file = getSplit(file,".",0);
+    int number = stoi(getSplit(file,"_",1));
+    return number;
+}
+
 void PCLViewer::getInputs()
 {
     // Reading the pointclouds, sensor scans and the transformations from files using XML config file.
@@ -34,9 +51,13 @@ void PCLViewer::getInputs()
     read_xml(file, pt);
     string camera_metric = pt.get<std::string>("data.camera.metric","m");
     cout<<"------------- "<<camera_metric<<endl;
+    int counter = 0;
     for (const auto &cloud : pt.get_child("data.camera.clouds"))
     {
         string filename = cloud.second.data();
+        int cloud_id = getFileId(filename); 
+        cout<<"Cloud Number: "<<cloud_id<<endl;
+        mapping_[counter++] = cloud_id-1;
         PointCloudT::Ptr pointcloud(new PointCloudT);
         readPointCloud(filename,pointcloud,camera_metric);
         PointCloudT::Ptr temp_cloud(new PointCloudT);
@@ -375,7 +396,7 @@ void PCLViewer::updateClouds(vector<PointCloudT::Ptr> clouds)
     {
         cloud_outputs_[i]->clear();
         Eigen::MatrixXd cam_T_flange = TransformationUtilities::vectorToTransformationMatrix(flange_transformation_);
-        Eigen::MatrixXd transformation = inverse_kinematics_[i]*cam_T_flange;
+        Eigen::MatrixXd transformation = inverse_kinematics_[mapping_[i]]*cam_T_flange;
         if(selected_clouds_[i])
         {
             if(identify_good_points_==false)

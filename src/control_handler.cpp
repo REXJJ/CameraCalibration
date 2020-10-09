@@ -56,7 +56,7 @@ void PCLViewer::updateAxes()
         for(int i=0;i<clouds_.size();i++)
         {
             Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation_);
-            Eigen::MatrixXd transformation = inverse_kinematics_[i]*cam_T_flange;
+            Eigen::MatrixXd transformation = inverse_kinematics_[mapping_[i]]*cam_T_flange;
             if(selected_clouds_[i])
                 addCoordinateAxes(transformation,viewer_,"camera"+to_string(i+1));
             else
@@ -88,7 +88,7 @@ void PCLViewer::updateAxes()
     }
     for(int i=2;i<selected_axes_.size()-1;i++)
         if(selected_axes_[i])
-            addCoordinateAxes(inverse_kinematics_[i-2],viewer_,"flange"+to_string(i-1));
+            addCoordinateAxes(inverse_kinematics_[mapping_[i-2]],viewer_,"flange"+to_string(i-1));
         else
             viewer_->removeCoordinateSystem("flange"+to_string(i-1));
 
@@ -189,7 +189,7 @@ void PCLViewer::updateErrorTable()
             // pcl::PointCloud<pcl::PointXYZ>::Ptr temp(new pcl::PointCloud<pcl::PointXYZ>);
             Eigen::MatrixXd world_T_object = vectorToTransformationMatrix(transformation_);
             Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation_);
-            Eigen::MatrixXd transformation = inverse_kinematics_[j]*cam_T_flange;
+            Eigen::MatrixXd transformation = inverse_kinematics_[mapping_[j]]*cam_T_flange;
             world_T_object = world_T_object.inverse();
             // transformPointCloud<pcl::PointXYZ>(cloud_downsampled_[j],temp,transformation );
             MatrixXf N = MatrixXf::Zero(3, clouds_[j]->points.size());
@@ -283,7 +283,7 @@ void PCLViewer::updateErrorTable()
             double average = 0.0;
             double max_error = -1e9;
             Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation_);
-            Eigen::MatrixXd transformation = inverse_kinematics_[j]*cam_T_flange;
+            Eigen::MatrixXd transformation = inverse_kinematics_[mapping_[j]]*cam_T_flange;
             Eigen::Affine3d trans;
             for(int a=0;a<3;a++)
                 for(int b=0;b<4;b++)
@@ -454,7 +454,7 @@ void PCLViewer::applyAlgorithm()
                 return;
             cout<<"Selected Cloud: "<<id<<endl;
             Eigen::MatrixXd cam_T_base = vectorToTransformationMatrix(coords);
-            Eigen::MatrixXd inverse_kinematics = inverse_kinematics_[id];
+            Eigen::MatrixXd inverse_kinematics = inverse_kinematics_[mapping_[id]];
             Eigen::MatrixXd cam_T_flange = inverse_kinematics.inverse()*cam_T_base; 
             Eigen::MatrixXd euler = rot2eul(cam_T_flange.block<3,3>(0,0),"");
             vector<double> transformation;

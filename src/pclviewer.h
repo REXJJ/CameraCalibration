@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <unordered_map>
 // Qt
 #include <QMainWindow>
 #include <QTextBrowser>
@@ -133,6 +134,7 @@ class PCLViewer : public QMainWindow
         int z_threshold_;
         bool use_plane_;
         vector<double> plane_;
+        unordered_map<int,int> mapping_;
 
     private:
         Ui::PCLViewer *ui_;

@@ -10,6 +10,7 @@
 #include <pcl/common/transforms.h>
 #include <omp.h>
 #include <iostream>
+#include <unordered_map>
 #include <gdcpp.h>
 #include <fstream>
 #include <pcl/sample_consensus/ransac.h>
@@ -55,6 +56,8 @@ class Optimizer
         void getInputs();
         double getError(vector<double>);
         void printError(vector<double>);
+        double getError(vector<double>,vector<double>);
+        unordered_map<int,int> mapping;
 };
 
 Optimizer::Optimizer(string filename)
@@ -164,6 +167,23 @@ void getResampledCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud,pcl::PointCloud
         }
 }
 
+string getSplit(string name, string character,int id)
+{
+    vector<string> values;
+    boost::split(values,name,boost::is_any_of(character));
+    if(id<0)
+        id = values.size()+id;
+    return values[id];
+}
+
+int getFileId(string filename)
+{
+    string file = getSplit(filename,"/",-1);
+    file = getSplit(file,".",0);
+    int number = stoi(getSplit(file,"_",1));
+    return number;
+}
+
 void Optimizer::getInputs()
 {
     ifstream file;
@@ -173,9 +193,13 @@ void Optimizer::getInputs()
     ptree pt;
     read_xml(file, pt);
     string camera_metric = pt.get<std::string>("data.camera.metric","m");
+    int counter = 0;
     for (const auto &cloud : pt.get_child("data.camera.clouds"))
     {
         string filename = cloud.second.data();
+        int cloud_id = getFileId(filename); 
+        cout<<"Cloud Number: "<<cloud_id<<endl;
+        mapping[counter++] = cloud_id-1;
         ifstream file(filename);
         string line;
         for(int c=0;c<14&&getline(file,line);c++);
@@ -255,7 +279,7 @@ double Optimizer::getError(vector<double> transformation)
         double average = 0.0;
         double error_mx = -1e9;
         Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(transformation);
-        Eigen::MatrixXd transformation = inverse_kinematics[j]*cam_T_flange;
+        Eigen::MatrixXd transformation = inverse_kinematics[mapping[j]]*cam_T_flange;
         Eigen::Affine3d trans;
         for(int a=0;a<3;a++)
             for(int b=0;b<4;b++)
@@ -279,7 +303,40 @@ double Optimizer::getError(vector<double> transformation)
     }
     return error/clouds.size();
 }
-
+double Optimizer::getError(vector<double> transformation,vector<double> plane_local)
+{
+    double error = 0.0;
+    Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
+    // vector<double> error_vec(clouds.size(),0);
+    for(int j=0;j<clouds.size();j++)
+    {
+        double average = 0.0;
+        double error_mx = -1e9;
+        Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(transformation);
+        Eigen::MatrixXd transformation = inverse_kinematics[mapping[j]]*cam_T_flange;
+        Eigen::Affine3d trans;
+        for(int a=0;a<3;a++)
+            for(int b=0;b<4;b++)
+                trans(a,b) = transformation(a,b);
+        for(int i=0;i<cloud_downsampled[j]->points.size();i++)
+        {
+            auto pt = cloud_downsampled[j]->points[i];
+            float src[3];
+            float out[3];
+            src[0] = pt.x;
+            src[1] = pt.y;
+            src[2] = pt.z;
+            apply_transformation_optimized(src,out,trans);
+            double distance = pointToPlaneDistance(plane_local,{out[0],out[1],out[2]});
+            average+=distance;
+            if(distance>error_mx)
+                error_mx = distance;
+        }
+        error+=average/cloud_downsampled[j]->points.size();
+        // error+=error_mx;
+    }
+    return error/clouds.size();
+}
 void Optimizer::printError(vector<double> transformation)
 {
     Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
@@ -288,7 +345,7 @@ void Optimizer::printError(vector<double> transformation)
         double average = 0.0;
         double error_mx = -1e9;
         Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(transformation);
-        Eigen::MatrixXd transformation = inverse_kinematics[j]*cam_T_flange;
+        Eigen::MatrixXd transformation = inverse_kinematics[mapping[j]]*cam_T_flange;
         Eigen::Affine3d trans;
         for(int a=0;a<3;a++)
             for(int b=0;b<4;b++)
@@ -316,7 +373,7 @@ void Optimizer::printError(vector<double> transformation)
         double average = 0.0;
         double error_mx = -1e9;
         Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(transformation);
-        Eigen::MatrixXd transformation = inverse_kinematics[j]*cam_T_flange;
+        Eigen::MatrixXd transformation = inverse_kinematics[mapping[j]]*cam_T_flange;
         Eigen::Affine3d trans;
         for(int a=0;a<3;a++)
             for(int b=0;b<4;b++)
@@ -383,6 +440,7 @@ void gradientDescent()
     std::cout << "Final fval: " << result.fval << std::endl;
     std::cout << "Final xval: " << result.xval.transpose() << std::endl;
     std::cout<<"---------------------------------------------------------"<<endl;
+    outfile<<"Gradient Descent on Flange Transformation..."<<endl;
     outfile<<"Iterations: "<<result.iterations<<" Converged: "<<(result.converged ? "true" : "false")<<" Final fval: "<<result.fval<<endl;
     outfile<<"Flange Transformation"<<endl;
     auto result_flange_trans = result.xval.transpose().head(6);
@@ -393,7 +451,67 @@ void gradientDescent()
     for(int i=0;i<3;i++)
         outfile<<opti.plane(i)<<", ";
     outfile<<opti.plane(3)<<endl;
-    outfile<<"------------------------------------------------------"<<endl;
+    for(int i=0;i<6;i++)
+        opti.flange_transformation[i] = result_flange_trans(i);
+    opti.printError({result_flange_trans(0),result_flange_trans(1),result_flange_trans(2),result_flange_trans(3),result_flange_trans(4),result_flange_trans(5)});
+}
+void gradientDescentWithPlane()
+{
+    struct Ackley
+    {
+        Ackley()
+        { 
+        }
+
+        double operator()(const Eigen::VectorXd &xval, Eigen::VectorXd &) const
+        {
+            vector<double> trans(6);
+            vector<double> plane(4);
+            for(int i=0;i<6;i++){
+                trans[i]=xval(i);
+            }
+            for(int i=6;i<10;i++)
+                plane[i-6]=xval(i);
+            return opti.getError(trans,plane);
+        }
+    };
+    gdc::GradientDescent<double, Ackley,
+        gdc::WolfeBacktracking<double>> optimizer;
+
+    optimizer.setMaxIterations(10000);
+    optimizer.setMinGradientLength(1e-6);
+    optimizer.setMinStepLength(1e-6);
+    optimizer.setMomentum(0.4);
+    optimizer.setVerbosity(4);
+    Eigen::VectorXd initialGuess = Eigen::VectorXd::Zero(10);
+    for(int i=0;i<6;i++)
+    {
+        initialGuess(i) = opti.flange_transformation[i];
+    }
+    cout<<"Plane Value"<<endl;
+    for(int i=0;i<4;i++)
+        cout<<opti.plane(i)<<" ";
+    cout<<endl;
+    for(int i=0;i<4;i++)
+        initialGuess(i+6) = opti.plane(i);
+    auto result = optimizer.minimize(initialGuess);
+    std::cout << "Done! Converged: " << (result.converged ? "true" : "false")
+        << " Iterations: " << result.iterations << std::endl;
+    std::cout << "Final fval: " << result.fval << std::endl;
+    std::cout << "Final xval: " << result.xval.transpose() << std::endl;
+    std::cout<<"---------------------------------------------------------"<<endl;
+    outfile<<"Gradient Descent on Plane..."<<endl;
+    outfile<<"Iterations: "<<result.iterations<<" Converged: "<<(result.converged ? "true" : "false")<<" Final fval: "<<result.fval<<endl;
+    outfile<<"Flange Transformation"<<endl;
+    auto result_flange_trans = result.xval.transpose().head(6);
+    for(int i=0;i<5;i++)
+        outfile<<result_flange_trans(i)<<", ";
+    outfile<<result_flange_trans(5)<<endl;
+    outfile<<"Plane Equation"<<endl;
+    auto result_plane = result.xval.transpose().tail(4);
+    for(int i=0;i<3;i++)
+        outfile<<result_plane(i)<<", ";
+    outfile<<result_plane(3)<<endl;
     opti.printError({result_flange_trans(0),result_flange_trans(1),result_flange_trans(2),result_flange_trans(3),result_flange_trans(4),result_flange_trans(5)});
 }
 
@@ -425,6 +543,11 @@ void discreteCombinatorialOptimization()
     for(auto x:transformation_best)
         cout<<x<<" ";
     cout<<endl;
+    outfile<<"Flange Transformation From Discrete Optimization"<<endl;
+    for(int i=0;i<5;i++)
+        outfile<<transformation_best[i]<<", ";
+    outfile<<transformation_best[5]<<endl;
+    opti.flange_transformation = transformation_best;
 }
 
 int main(int argc, char** argv)
@@ -443,8 +566,10 @@ int main(int argc, char** argv)
     opti = Optimizer(config_filename);
     opti.getInputs();
     cout<<"Starting optimization"<<endl;
-    // gradientDescent();
     discreteCombinatorialOptimization();
+    gradientDescent();
+    gradientDescentWithPlane();
+    outfile<<"------------------------------------------------------"<<endl;
     return 0;
 }
 
