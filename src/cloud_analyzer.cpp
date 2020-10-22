@@ -232,22 +232,19 @@ void Optimizer::getInputs()
             average+=distance_to_plane;
         }
         cout<<counter<<","<<int((average/cloud_bw_temp->points.size())*100000.0)/100.0<<","<<int(maxx*100000.0)/100.0<<endl;
-        if(counter==1||counter==2||counter==21)
-        {
-            pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
-            viewer->setBackgroundColor (1.0,1.0,1.0);
-            viewer->initCameraParameters ();
-            viewer->addPointCloud<pcl::PointXYZRGB>(cloud_temp);
-            pcl::ModelCoefficients::Ptr plane_1 (new pcl::ModelCoefficients);
-            plane_1->values.resize (4);
-            plane_1->values[0] = plane(0);
-            plane_1->values[1] = plane(1);
-            plane_1->values[2] = plane(2);
-            plane_1->values[3] = plane(3);
-            // viewer->addPlane (*plane_1, "plane_1", 0);
-            while(!viewer->wasStopped())
-                viewer->spinOnce(100);
-        }
+        pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
+        viewer->setBackgroundColor (1.0,1.0,1.0);
+        viewer->initCameraParameters ();
+        viewer->addPointCloud<pcl::PointXYZRGB>(cloud_temp);
+        pcl::ModelCoefficients::Ptr plane_1 (new pcl::ModelCoefficients);
+        plane_1->values.resize (4);
+        plane_1->values[0] = plane(0);
+        plane_1->values[1] = plane(1);
+        plane_1->values[2] = plane(2);
+        plane_1->values[3] = plane(3);
+        // viewer->addPlane (*plane_1, "plane_1", 0);
+        while(!viewer->wasStopped())
+            viewer->spinOnce(100);
 #endif
         cloud_downsampled.push_back(cloud_filtered);
         // PointCloudT::Ptr pointcloud_output(new PointCloudT);

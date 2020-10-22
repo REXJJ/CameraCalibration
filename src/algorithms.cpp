@@ -185,7 +185,7 @@ void PCLViewer::findSeedPoints()
         int counter = 0;
         Eigen::MatrixXd world_T_object = vectorToTransformationMatrix(transformation_);
         Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation_);
-        Eigen::MatrixXd transformation = inverse_kinematics_[j]*cam_T_flange;
+        Eigen::MatrixXd transformation = inverse_kinematics_[mapping_[j]]*cam_T_flange;
         world_T_object = world_T_object.inverse();
         MatrixXf N = MatrixXf::Zero(3, cloud_downsampled_[j]->points.size());
         Eigen::Affine3d trans;
@@ -287,7 +287,7 @@ void PCLViewer::showErrorsInPoints()
             int counter = 0;
             Eigen::MatrixXd world_T_object = vectorToTransformationMatrix(transformation_);
             Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation_);
-            Eigen::MatrixXd transformation = inverse_kinematics_[j]*cam_T_flange;
+            Eigen::MatrixXd transformation = inverse_kinematics_[mapping_[j]]*cam_T_flange;
             world_T_object = world_T_object.inverse();
             MatrixXf N = MatrixXf::Zero(3, clouds_[j]->points.size());
             Eigen::Affine3d trans;
@@ -370,7 +370,7 @@ void PCLViewer::showErrorsInPoints()
                 continue;
             }
             Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation_);
-            Eigen::MatrixXd transformation = inverse_kinematics_[j]*cam_T_flange;
+            Eigen::MatrixXd transformation = inverse_kinematics_[mapping_[j]]*cam_T_flange;
             Eigen::Affine3d trans;
             for(int a=0;a<3;a++)
                 for(int b=0;b<4;b++)
