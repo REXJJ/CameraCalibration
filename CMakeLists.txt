@@ -37,28 +37,14 @@ list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
 
 set(project_SOURCES src/main.cpp src/pclviewer.cpp src/interface_handler.cpp src/control_handler.cpp src/sliders_handler.cpp src/algorithms.cpp src/helpers.cpp)
 
+# Compilation of the GUI
 add_executable(${PROJECT_NAME} ${project_SOURCES})
 target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES} Eigen3::Eigen Qt5::Widgets libnabo::nabo)
 
-add_executable(optimizer src/optimizer_test.cpp src/helpers.cpp)
-target_link_libraries(optimizer ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)
+# add_executable(cloud_analyzer src/cloud_analyzer.cpp src/helpers.cpp)
+# target_link_libraries(cloud_analyzer ${PCL_LIBRARIES} Eigen3::Eigen)
 
-# add_executable(optimizer_double src/double_object_optimizer_test.cpp src/helpers.cpp)
-# target_link_libraries(optimizer_double ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)
-
-add_executable(gd_optimizer src/gradient_descent_test.cpp src/helpers.cpp)
-target_link_libraries(gd_optimizer  ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)
-
-add_executable(gd_optimizer_ransac src/gradient_descent_ransac.cpp src/helpers.cpp)
-target_link_libraries(gd_optimizer_ransac  ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)
-
-add_executable(gd_optimizer_ransac_error_calc src/error_calculation_gd_ransac.cpp src/helpers.cpp)
-target_link_libraries(gd_optimizer_ransac_error_calc   ${PCL_LIBRARIES} Eigen3::Eigen libnabo::nabo)
-
-add_executable(cloud_analyzer src/cloud_analyzer.cpp src/helpers.cpp)
-target_link_libraries(cloud_analyzer ${PCL_LIBRARIES} Eigen3::Eigen)
-
+# Compilation of the optimizer 
 add_executable(camera_calibration_optimization src/camera_calibration_optimization.cpp src/helpers.cpp)
 target_link_libraries(camera_calibration_optimization ${PCL_LIBRARIES} Eigen3::Eigen)
 
-add_executable(units_converter src/units_converter.cpp)

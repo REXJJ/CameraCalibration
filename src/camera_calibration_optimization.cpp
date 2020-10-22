@@ -97,26 +97,6 @@ vector<double> Optimizer::getTransVector(boost::property_tree::ptree &pt,string 
     return coords;
 }
 
-Eigen::MatrixXd getPlane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
-{
-
-    pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
-    pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
-    // Create the segmentation object
-    pcl::SACSegmentation<pcl::PointXYZ> seg;
-    // Optional
-    seg.setOptimizeCoefficients (true);
-    // Mandatory
-    seg.setModelType (pcl::SACMODEL_PLANE);
-    seg.setMethodType (pcl::SAC_RANSAC);
-    seg.setDistanceThreshold (0.01);
-    seg.setInputCloud (cloud);
-    seg.segment (*inliers, *coefficients);
-    Eigen::MatrixXd parameters(1,4);
-    parameters<<coefficients->values[0],coefficients->values[1],coefficients->values[2],coefficients->values[3];
-    return parameters;
-}
-
 Eigen::Vector4f fitPlane(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
 {
   Eigen::MatrixXd lhs (cloud->size(), 3);
@@ -146,25 +126,6 @@ double pointToPlaneDistance(Eigen::Vector4f plane, vector<double> pt)
 double pointToPlaneDistance(vector<double> plane, vector<double> pt)
 {
     return fabs(plane[0]*pt[0]+plane[1]*pt[1]+plane[2]*pt[2]+plane[3])/(sqrt(pow(plane[0],2)+pow(plane[1],2)+pow(plane[2],2)));
-}
-
-inline double getZFromPlane(Eigen::Vector4f plane,double x,double y)
-{
-    return -1*(plane(0)*x+plane(1)*y+plane(3))/plane(2);
-}
-
-void getResampledCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud,pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered,Eigen::Vector4f plane)
-{
-    double x_min = -0.158679,x_max = 0.197742,y_min = -0.155303,y_max = 0.159268;
-    for(double x=x_min;x<=x_max;x+=0.02)
-        for(double y=y_min;y<=y_max;y+=0.02)
-        {
-            pcl::PointXYZ pt;
-            pt.x = x;
-            pt.y = y;
-            pt.z = getZFromPlane(plane,x,y);
-            cloud_filtered->points.push_back(pt);
-        }
 }
 
 string getSplit(string name, string character,int id)
@@ -402,9 +363,9 @@ Optimizer opti;
 
 void gradientDescent()
 {
-    struct Ackley
+    struct Functor
     {
-        Ackley()
+        Functor()
         { 
         }
 
@@ -417,7 +378,7 @@ void gradientDescent()
             return opti.getError(trans);
         }
     };
-    gdc::GradientDescent<double, Ackley,
+    gdc::GradientDescent<double, Functor,
         gdc::WolfeBacktracking<double>> optimizer;
 
     optimizer.setMaxIterations(10000);
@@ -457,9 +418,9 @@ void gradientDescent()
 }
 void gradientDescentWithPlane()
 {
-    struct Ackley
+    struct Functor
     {
-        Ackley()
+        Functor()
         { 
         }
 
@@ -475,7 +436,7 @@ void gradientDescentWithPlane()
             return opti.getError(trans,plane);
         }
     };
-    gdc::GradientDescent<double, Ackley,
+    gdc::GradientDescent<double, Functor,
         gdc::WolfeBacktracking<double>> optimizer;
 
     optimizer.setMaxIterations(10000);
