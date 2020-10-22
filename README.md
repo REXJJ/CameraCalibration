@@ -43,5 +43,5 @@ The optimizer runs a discrete combinatorial optimization on the flange_T_camera 
 Then the flange_T_camera transformation is further optimized using gradient descent. 
 
 ## License
-[MIT](https://choosealicense.com/licenses/mit/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
