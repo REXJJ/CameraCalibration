@@ -7,12 +7,12 @@ Compiling Instruction:
 
 * Gradient Descent
 `
-git clone https://github.com/Rookfighter/gradient-descent-cpp.git
-cd gradient-descent-cpp
-mkdir build
-cd build
-cmake ..
-make -j8
+git clone https://github.com/Rookfighter/gradient-descent-cpp.git \
+cd gradient-descent-cpp \
+mkdir build \
+cd build \
+cmake .. \
+make -j8 \
 sudo make install
 `
 * LibNabo
