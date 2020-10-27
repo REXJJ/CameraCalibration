@@ -518,7 +518,7 @@ int main(int argc, char** argv)
         std::cout<<"Usage: optimizer_test <config file>"<<endl;
         exit(-1);
     }
-    outfile.open("new_experiments.txt", std::ios_base::app); // append instead of overwrite
+    outfile.open("results.txt", std::ios_base::app); // append instead of overwrite
     string config_filename = argv[1];
     errorfile.open("new_experiments_errors.txt", std::ios_base::app); // append instead of overwrite
     config_filename = argv[1];
