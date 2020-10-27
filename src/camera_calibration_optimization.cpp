@@ -198,9 +198,10 @@ void Optimizer::getInputs()
         cout<<"Filtered Clouds Size: "<<cloud_filtered->points.size()<<endl;
         cloud_downsampled.push_back(cloud_filtered);
     }
-    string ik_filename  = pt.get<std::string>("data.camera.transformations.inverse_kinematics");
+    string ik_filename  = pt.get<std::string>("data.camera.transformations.inverse_kinematics.location");
     cout<<ik_filename<<endl;
-    inverse_kinematics = readTransformations(ik_filename,true);
+    string transformation_metric = pt.get<std::string>("data.camera.transformations.inverse_kinematics.metric","m");
+    inverse_kinematics = readTransformations(ik_filename,true,transformation_metric);
     string touch_points_file = pt.get<std::string>("data.plane.file","");
     pcl::PointCloud<pcl::PointXYZ>::Ptr touch_points(new pcl::PointCloud<pcl::PointXYZ>);
     ifstream file_h(touch_points_file);
@@ -210,9 +211,9 @@ void Optimizer::getInputs()
         vector<string> v;
         split(v,line,boost::is_any_of(","));
         pcl::PointXYZ pt;
-        pt.x = stof(v[0]);
-        pt.y = stof(v[1]);
-        pt.z = stof(v[2]);
+        pt.x = stof(v[0])/1000.0;
+        pt.y = stof(v[1])/1000.0;
+        pt.z = stof(v[2])/1000.0;
         touch_points->points.push_back(pt);
     }
     cout<<"Size of touch points: "<<touch_points->points.size()<<endl;
@@ -494,7 +495,6 @@ void discreteCombinatorialOptimization()
                             double total_error = opti.getError(temp_transformation);
                             if(total_error<error_min)
                             {
-                                cout<<x<<" "<<y<<" "<<z<<" "<<xt<<" "<<yt<<" "<<zt<<endl;
                                 cout<<"Error: "<<total_error<<endl;
                                 transformation_best = temp_transformation;
                                 error_min = total_error;

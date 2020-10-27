@@ -92,25 +92,12 @@ void PCLViewer::getInputs()
 
         cout<<filename<<endl;
     }
-    string ik_filename  = pt.get<std::string>("data.camera.transformations.inverse_kinematics");
+    string ik_filename  = pt.get<std::string>("data.camera.transformations.inverse_kinematics.location");
+    string transformation_metric = pt.get<std::string>("data.camera.transformations.inverse_kinematics.metric","m");
     cout<<ik_filename<<endl;
-    inverse_kinematics_ = readTransformations(ik_filename,true);
+    inverse_kinematics_ = readTransformations(ik_filename,true,transformation_metric);
     cout<<"Transformations Read"<<endl;
 
-    //Reading the scan cloud.
-    string object_metric = pt.get<std::string>("data.scan.metric","m");
-    cout<<"------------- "<<object_metric <<endl;
-    for(const auto &cloud :pt.get_child("data.scan.clouds"))
-    {
-        string filename = cloud.second.data();
-        readPointCloud(filename,cloud_,object_metric );
-    }
-    //Reflecting the cloud here. TODO: Need to remove this.
-    Eigen::MatrixXd reflect_cloud= Eigen::MatrixXd::Identity(4,4);
-    reflect_cloud(0,0) = 1;
-    transformPointCloud<pcl::PointXYZRGB>(cloud_,reflect_cloud);
-
-    cout<<"Scan read"<<endl; 
 #if 0
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_bw(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::copyPointCloud(*cloud_,*cloud_bw);
@@ -132,46 +119,7 @@ void PCLViewer::getInputs()
     }
 #endif
 
-    MatrixXf M = MatrixXf::Zero(3, cloud_->points.size());
-    for(int i=0;i<cloud_->points.size();i++)
-    {
-        auto pt = cloud_->points[i];
-        M(0,i) = pt.x;
-        M(1,i) = pt.y;
-        M(2,i) = pt.z;
-    }
-    kd_tree_nabo_ = NNSearchF::createKDTreeLinearHeap(M);
-
-    cout<<object_tree_vec_.size()<<" trees are added."<<endl;
-
-    double scale = 1.0;
-    if(object_metric=="mm")
-        scale = 1000.0;
-    else if(object_metric=="cm")
-        scale = 100.0;
-    //Reading locations of the object.
-    object_location_.reset(new PointCloudT);
-    for(const auto &location :pt.get_child("data.scan.location"))
-    {
-        string loc = location.second.data();
-        vector<string> coords;
-        boost::split(coords, loc , boost::is_any_of(","));
-        pcl::PointXYZRGB pt;
-        pt.x = stof(coords[0])/scale;
-        pt.y = stof(coords[1])/scale;
-        pt.z = stof(coords[2])/scale;
-        pt.r = pt.g = pt.b =0;
-        object_location_->points.push_back(pt);
-    }
-    cout<<"Scan Location Read"<<endl;
     //Reading Default Values;
-    auto transformation_initial_object= getTransVector(pt,"data.scan.transformations.approximate_transformation");
-    for(int i=0;i<transformation_initial_object.size();i++)
-    {
-        transformation_[i]=transformation_initial_object[i];
-        transformation_initial_[i] = transformation_initial_object[i];
-    }
-
     auto transformation_initial_flange= getTransVector(pt,"data.camera.transformations.approximate_transformation");
     for(int i=0;i<transformation_initial_flange.size();i++)
     {
@@ -201,8 +149,6 @@ void PCLViewer::setupViz()
     addClouds(clouds_,cloud_outputs_,inverse_kinematics_,flange_transformation_,viewer_);
     cout<<"Cloud added"<<endl;
     addObjectToSpace(cloud_,cloud_output_,transformation_,viewer_);
-    cout<<"Object added"<<endl;
-    viewer_->addPointCloud (object_location_, "locations");
     cout<<"Viewer Set"<<endl;
     viewer_->registerPointPickingCallback (&PCLViewer::pointPickingEventOccurred,*this);
     cout<<"Callback Done"<<endl;
@@ -246,11 +192,11 @@ void PCLViewer::setupInterface()
     cout<<"Updating Clouds"<<endl;
     updateObjectToSpace(cloud_,cloud_output_,transformation_,viewer_,false);
     cout<<"Updating Object"<<endl;
-    if(selected_clouds_[selected_clouds_.size()-1]==false)
-    {
-        PointCloudT::Ptr temp(new PointCloudT);
-        viewer_->updatePointCloud (temp,"locations");
-    }
+    // if(selected_clouds_[selected_clouds_.size()-1]==false)
+    // {
+    //     PointCloudT::Ptr temp(new PointCloudT);
+    //     viewer_->updatePointCloud (temp,"locations");
+    // }
     cout<<"Dropdown set"<<endl;
     ui_->listView->setModel(model_clouds_);
     //Setting up the dropdown for the axes.
