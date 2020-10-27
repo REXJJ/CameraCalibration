@@ -24,13 +24,16 @@ sudo make install
 Now this package should be compiled without any hassle.
 
 ## Run Instructions:
+For visualizing the results, do 
+```./pcl_visualizer <config_file>```
+See the example to see how the data is organized. The point cloud used for the optimization should be of the form <cloud name>_<number>.<ply/pcd/xyz>, where number identifies the camera location base_T_flange. Common issues include, but not limited to wrong metrics, wrong file locations, etc.
+ 
+The optimizer won't work if the initial estimate is way off. Check this using the visualizer. 
+
 For running the optimizer do the following,
 ```./camera_calibration_optimization <config file>```
 
-For visualizing the results, do 
-```./pcl_visualizer <config_file>```
-
-Example config files can be found in the config file directory.
+The results can be obtained from the file: results.txt
 
 ## Brief Summary of the optimizer
 
