@@ -161,31 +161,37 @@ void Optimizer::getInputs()
         int cloud_id = getFileId(filename); 
         cout<<"Cloud Number: "<<cloud_id<<endl;
         mapping[counter++] = cloud_id-1;
-        ifstream file(filename);
-        string line;
-        for(int c=0;c<14&&getline(file,line);c++);
-        PointCloudT::Ptr pointcloud(new PointCloudT);
-        while(getline(file,line))
-        {
-            vector<string> values_from_file;
-            boost::split(values_from_file, line, boost::is_any_of(" "));
-            pcl::PointXYZRGB pt;
-            pt.x = stof(values_from_file[0]);
-            pt.y = stof(values_from_file[1]);
-            pt.z = stof(values_from_file[2]);
-            pt.r = stof(values_from_file[3]);
-            pt.g = stof(values_from_file[4]);
-            pt.b = stof(values_from_file[5]);
-            pointcloud->points.push_back(pt);
-        }
+        PointCloudT::Ptr temp_cloud_t(new PointCloudT);
+        pcl::io::loadPCDFile<pcl::PointXYZRGB> (filename, *temp_cloud_t);
         PointCloudT::Ptr temp_cloud(new PointCloudT);
-        for(int i=0;i<pointcloud->points.size();i++)
-        {
-            auto pt = pointcloud->points[i];
-            if(pt.x==0.0&&pt.y==0.0&&pt.z==0.0)
-                continue;
-            temp_cloud->points.push_back(pt);
-        }
+        for(auto pts:temp_cloud_t->points)
+            if(pts.z<=0.8)
+                temp_cloud->points.push_back(pts);
+        // ifstream file(filename);
+        // string line;
+        // for(int c=0;c<14&&getline(file,line);c++);
+        // PointCloudT::Ptr pointcloud(new PointCloudT);
+        // while(getline(file,line))
+        // {
+        //     vector<string> values_from_file;
+        //     boost::split(values_from_file, line, boost::is_any_of(" "));
+        //     pcl::PointXYZRGB pt;
+        //     pt.x = stof(values_from_file[0]);
+        //     pt.y = stof(values_from_file[1]);
+        //     pt.z = stof(values_from_file[2]);
+        //     pt.r = stof(values_from_file[3]);
+        //     pt.g = stof(values_from_file[4]);
+        //     pt.b = stof(values_from_file[5]);
+        //     pointcloud->points.push_back(pt);
+        // }
+        // PointCloudT::Ptr temp_cloud(new PointCloudT);
+        // for(int i=0;i<pointcloud->points.size();i++)
+        // {
+        //     auto pt = pointcloud->points[i];
+        //     if(pt.x==0.0&&pt.y==0.0&&pt.z==0.0)
+        //         continue;
+        //     temp_cloud->points.push_back(pt);
+        // }
         clouds.push_back(temp_cloud);
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_bw_temp(new pcl::PointCloud<pcl::PointXYZ>);
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
@@ -229,6 +235,46 @@ void Optimizer::getInputs()
         flange_transformation[i]=transformation_initial_flange[i];
         flange_transformation_initial[i]=transformation_initial_flange[i];
     }
+
+    cout<<"Plane Equation 2: "<<endl;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_combined (new pcl::PointCloud<pcl::PointXYZ>);
+    int cl = 0;
+    for(auto cloud:clouds)
+    {
+        for(int i=0;i<cloud->points.size();i++)
+        {
+            pcl::PointXYZ pt;
+            pt.x = cloud->points[i].x;
+            pt.y = cloud->points[i].y;
+            pt.z = cloud->points[i].z;
+            if(pt.z>0.8)
+                continue;
+
+            Eigen::MatrixXd cam_T_flange = vectorToTransformationMatrix(flange_transformation);
+            Eigen::MatrixXd transformation_temp = inverse_kinematics[mapping[cl]]*cam_T_flange;
+            Eigen::Affine3d transformation;
+            for(int a=0;a<3;a++)
+                for(int b=0;b<4;b++)
+                    transformation(a,b) = transformation_temp(a,b);
+
+            float src[3];
+            float out[3];
+            src[0] = pt.x;
+            src[1] = pt.y;
+            src[2] = pt.z;
+            apply_transformation_optimized(src,out,transformation);
+            pt.x = out[0];
+            pt.y = out[1];
+            pt.z = out[2];
+            cloud_combined->points.push_back(pt);
+        }
+        cl++;
+    }
+    auto new_plane = fitPlane(cloud_combined);
+    plane = new_plane;
+    for(int i=0;i<4;i++)
+        cout<<new_plane(i)<<" ";
+    cout<<endl;
 }
 
 double Optimizer::getError(vector<double> transformation)
