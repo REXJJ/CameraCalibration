@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<data>
+    <camera>
+        <transformations>
+           <inverse_kinematics>
+                <metric>mm</metric>
+                <location>../example/example_data/BaseToFlange.txt</location>
+            </inverse_kinematics>
+            <approximate_transformation>
+                <angle>rad</angle>
+                <metric>m</metric>
+                <value>-0.00761166,-0.0175338,0.113552,-5.46115,0.00257659,1.58474</value>
+            </approximate_transformation>
+        </transformations>
+        <metric>m</metric>
+        <clouds>
+            <pointcloud>../example/example_data/pointcloud/pos_1.pcd</pointcloud>
+            <pointcloud>../example/example_data/pointcloud/pos_2.pcd</pointcloud>
+            <pointcloud>../example/example_data/pointcloud/pos_3.pcd</pointcloud>
+            <pointcloud>../example/example_data/pointcloud/pos_4.pcd</pointcloud>
+            <pointcloud>../example/example_data/pointcloud/pos_5.pcd</pointcloud>
+            <pointcloud>../example/example_data/pointcloud/pos_6.pcd</pointcloud>
+        </clouds>
+    </camera>
+    <plane>
+        <metric>mm</metric>
+        <file>../example/example_data/TeachingPoint.txt</file>
+        <value>0.00776108,-0.000312181,0.994624,-0.132581</value>
+    </plane>
+
+</data>

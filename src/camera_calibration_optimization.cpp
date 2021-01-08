@@ -208,27 +208,27 @@ void Optimizer::getInputs()
     cout<<ik_filename<<endl;
     string transformation_metric = pt.get<std::string>("data.camera.transformations.inverse_kinematics.metric","m");
     inverse_kinematics = readTransformations(ik_filename,true,transformation_metric);
-    string touch_points_file = pt.get<std::string>("data.plane.file","");
-    pcl::PointCloud<pcl::PointXYZ>::Ptr touch_points(new pcl::PointCloud<pcl::PointXYZ>);
-    ifstream file_h(touch_points_file);
-    string line;
-    while(getline(file_h,line)&&line.size())
-    {
-        vector<string> v;
-        split(v,line,boost::is_any_of(","));
-        pcl::PointXYZ pt;
-        pt.x = stof(v[0])/1000.0;
-        pt.y = stof(v[1])/1000.0;
-        pt.z = stof(v[2])/1000.0;
-        touch_points->points.push_back(pt);
-    }
-    cout<<"Size of touch points: "<<touch_points->points.size()<<endl;
-    plane = fitPlane(touch_points);
-    cout<<"Plane Equation: "<<endl;
-    for(int i=0;i<4;i++)
-        cout<<plane(i)<<" ";
-    cout<<endl;
-    cout<<"Transformations Read"<<endl;
+    // string touch_points_file = pt.get<std::string>("data.plane.file","");
+    // pcl::PointCloud<pcl::PointXYZ>::Ptr touch_points(new pcl::PointCloud<pcl::PointXYZ>);
+    // ifstream file_h(touch_points_file);
+    // string line;
+    // while(getline(file_h,line)&&line.size())
+    // {
+    //     vector<string> v;
+    //     split(v,line,boost::is_any_of(","));
+    //     pcl::PointXYZ pt;
+    //     pt.x = stof(v[0])/1000.0;
+    //     pt.y = stof(v[1])/1000.0;
+    //     pt.z = stof(v[2])/1000.0;
+    //     touch_points->points.push_back(pt);
+    // }
+    // cout<<"Size of touch points: "<<touch_points->points.size()<<endl;
+    // plane = fitPlane(touch_points);
+    // cout<<"Plane Equation: "<<endl;
+    // for(int i=0;i<4;i++)
+        // cout<<plane(i)<<" ";
+    // cout<<endl;
+    // cout<<"Transformations Read"<<endl;
     auto transformation_initial_flange= getTransVector(pt,"data.camera.transformations.approximate_transformation");
     for(int i=0;i<transformation_initial_flange.size();i++)
     {

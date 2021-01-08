@@ -24,8 +24,6 @@
     </camera>
     <plane>
         <metric>mm</metric>
-        <file>../example/example_data/TeachingPoint.txt</file>
         <value>0.00776108,-0.000312181,0.994624,-0.132581</value>
     </plane>
-
 </data>
