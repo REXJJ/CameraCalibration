@@ -135,7 +135,7 @@ namespace InputUtilities
         }
         else if(type=="ply")
         {
-#if 0
+#if 1
             pcl::PLYReader reader;
             reader.read(filename, *cloud);
 #else

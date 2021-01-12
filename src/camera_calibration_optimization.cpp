@@ -162,7 +162,7 @@ void Optimizer::getInputs()
         cout<<"Cloud Number: "<<cloud_id<<endl;
         mapping[counter++] = cloud_id-1;
         PointCloudT::Ptr temp_cloud_t(new PointCloudT);
-        pcl::io::loadPCDFile<pcl::PointXYZRGB> (filename, *temp_cloud_t);
+        InputUtilities::readPointCloud(filename,temp_cloud_t,camera_metric);
         PointCloudT::Ptr temp_cloud(new PointCloudT);
         for(auto pts:temp_cloud_t->points)
             if(pts.z<=0.8)
