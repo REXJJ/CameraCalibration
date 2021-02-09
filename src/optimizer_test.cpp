@@ -1,4 +1,4 @@
-#include "nabo/nabo.h"
+// #include "nabo/nabo.h"
 #include "helpers.hpp"
 #include <pcl/io/ply_io.h>
 #include <boost/property_tree/xml_parser.hpp>
@@ -11,7 +11,7 @@
 #include <omp.h>
 #include <iostream>
 
-using namespace Nabo;
+// using namespace Nabo;
 using namespace Eigen;
 using namespace std;
 using namespace TransformationUtilities;
@@ -177,7 +177,7 @@ void Optimizer::discreteCombintorialOptimizerTranslation()
         M(1,i) = pt.y;
         M(2,i) = pt.z;
     }
-    NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
+    // NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
     //Setting up the structures.
     vector<MatrixXf> Ns;
     vector<MatrixXi> indis;
@@ -265,7 +265,7 @@ void Optimizer::discreteCombintorialOptimizerTranslation()
                                     counter++;
                                 }
 
-                                nns->knn(Ns[j], indis[j],dists[j], 1, 0.1, NNSearchF::SORT_RESULTS);
+                                // nns->knn(Ns[j], indis[j],dists[j], 1, 0.1, NNSearchF::SORT_RESULTS);
 
                                 for(int i=0;i<counter;i++)
                                 {
@@ -343,7 +343,7 @@ void Optimizer::discreteCombintorialOptimizerRotation()
         M(1,i) = pt.y;
         M(2,i) = pt.z;
     }
-    NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
+    // NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
     //Setting up the structures.
     vector<MatrixXf> Ns;
     vector<MatrixXi> indis;
@@ -431,7 +431,7 @@ void Optimizer::discreteCombintorialOptimizerRotation()
                                     counter++;
                                 }
 
-                                nns->knn(Ns[j], indis[j],dists[j], 1, 0.1, NNSearchF::SORT_RESULTS);
+                                // nns->knn(Ns[j], indis[j],dists[j], 1, 0.1, NNSearchF::SORT_RESULTS);
 
                                 for(int i=0;i<counter;i++)
                                 {
@@ -496,7 +496,7 @@ void Optimizer::discreteCombintorialOptimizerObject()
         M(1,i) = pt.y;
         M(2,i) = pt.z;
     }
-    NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
+    // NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
     //Setting up the structures.
     vector<MatrixXf> Ns;
     vector<MatrixXi> indis;
@@ -584,7 +584,7 @@ void Optimizer::discreteCombintorialOptimizerObject()
                                     counter++;
                                 }
 
-                                nns->knn(Ns[j], indis[j],dists[j], 1, 0.1, NNSearchF::SORT_RESULTS);
+                                // nns->knn(Ns[j], indis[j],dists[j], 1, 0.1, NNSearchF::SORT_RESULTS);
 
                                 for(int i=0;i<counter;i++)
                                 {
@@ -660,7 +660,7 @@ void Optimizer::discreteCombintorialOptimizerCamera()
         M(1,i) = pt.y;
         M(2,i) = pt.z;
     }
-    NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
+    // NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
     //Setting up the structures.
     vector<MatrixXf> Ns;
     vector<MatrixXi> indis;
@@ -748,7 +748,7 @@ void Optimizer::discreteCombintorialOptimizerCamera()
                                     counter++;
                                 }
 
-                                nns->knn(Ns[j], indis[j],dists[j], 1, 0.1, NNSearchF::SORT_RESULTS);
+                                // nns->knn(Ns[j], indis[j],dists[j], 1, 0.1, NNSearchF::SORT_RESULTS);
 
                                 for(int i=0;i<counter;i++)
                                 {
@@ -824,7 +824,7 @@ void Optimizer::discreteCombintorialOptimizerSmallBruteForce()
         M(1,i) = pt.y;
         M(2,i) = pt.z;
     }
-    NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
+    // NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
     //Setting up the structures.
     vector<MatrixXf> Ns;
     vector<MatrixXi> indis;
@@ -925,7 +925,7 @@ void Optimizer::discreteCombintorialOptimizerSmallBruteForce()
                                                                 counter++;
                                                             }
 
-                                                            nns->knn(Ns[j], indis[j],dists[j], 1, 0.1, NNSearchF::SORT_RESULTS);
+                                                            // nns->knn(Ns[j], indis[j],dists[j], 1, 0.1, NNSearchF::SORT_RESULTS);
 
                                                             for(int i=0;i<counter;i++)
                                                             {

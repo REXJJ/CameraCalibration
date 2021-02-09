@@ -40,7 +40,7 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <omp.h>
-#include "nabo/nabo.h"
+// #include "nabo/nabo.h"
 #include "algorithms.hpp"
 
 using namespace std;
@@ -48,7 +48,7 @@ using namespace Eigen;
 using namespace TransformationUtilities;
 using namespace InputUtilities;
 using namespace InterfaceUtilities;
-using namespace Nabo;
+// using namespace Nabo;
 using namespace pcl;
 
 
@@ -166,7 +166,7 @@ void PCLViewer::findSeedPoints()
         M(1,i) = pt.y;
         M(2,i) = pt.z;
     }
-    NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
+    // NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
 
     vector<double> error_avg(clouds_.size(),1.0/0.0);
     vector<double> error_max(clouds_.size(),1.0/0.0);
@@ -229,7 +229,7 @@ void PCLViewer::findSeedPoints()
         MatrixXf dists2;
         indices.resize(1, N.cols());
         dists2.resize(1, N.cols());
-        nns->knn(N, indices, dists2, 1, 0, NNSearchF::SORT_RESULTS);
+        // nns->knn(N, indices, dists2, 1, 0, NNSearchF::SORT_RESULTS);
         for(int i=0;i<counter;i++)
         {
             double distance = sqrt(dists2(0,i));
@@ -271,7 +271,7 @@ void PCLViewer::showErrorsInPoints()
             M(1,i) = pt.y;
             M(2,i) = pt.z;
         }
-        NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
+        // NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
         Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
         vector<PointCloudT::Ptr> processed;
         for(int j=0;j<clouds_.size();j++)
@@ -331,7 +331,7 @@ void PCLViewer::showErrorsInPoints()
             MatrixXf dists2;
             indices.resize(1, N.cols());
             dists2.resize(1, N.cols());
-            nns->knn(N, indices, dists2, 1, 0, NNSearchF::SORT_RESULTS);
+            // nns->knn(N, indices, dists2, 1, 0, NNSearchF::SORT_RESULTS);
             for(int i=0;i<counter;i++)
             {
                 double distance = sqrt(dists2(0,i));

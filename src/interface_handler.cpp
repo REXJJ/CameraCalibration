@@ -9,14 +9,14 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/common/transforms.h>
 #include <omp.h>
-#include "nabo/nabo.h"
+// #include "nabo/nabo.h"
 
 using namespace std;
 using namespace Eigen;
 using namespace TransformationUtilities;
 using namespace InputUtilities;
 using namespace InterfaceUtilities;
-using namespace Nabo;
+// using namespace Nabo;
 
 string getSplit(string name, string character,int id)
 {

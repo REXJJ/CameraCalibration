@@ -17,7 +17,7 @@ find_package(Qt5 REQUIRED Widgets)
 find_package(VTK REQUIRED)
 find_package(PCL 1.7.1 REQUIRED)
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
-find_package(libnabo REQUIRED)
+# find_package(libnabo REQUIRED)
 
 find_package ( OpenMP)
 if(OPENMP_FOUND)
@@ -39,7 +39,7 @@ set(project_SOURCES src/main.cpp src/pclviewer.cpp src/interface_handler.cpp src
 
 # Compilation of the GUI
 add_executable(${PROJECT_NAME} ${project_SOURCES})
-target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES} Eigen3::Eigen Qt5::Widgets libnabo::nabo)
+target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES} Eigen3::Eigen Qt5::Widgets )
 
 # add_executable(cloud_analyzer src/cloud_analyzer.cpp src/helpers.cpp)
 # target_link_libraries(cloud_analyzer ${PCL_LIBRARIES} Eigen3::Eigen)

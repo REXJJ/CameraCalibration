@@ -9,7 +9,7 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/common/transforms.h>
 #include <omp.h>
-#include "nabo/nabo.h"
+// #include "nabo/nabo.h"
 #include "algorithms.hpp"
 
 using namespace std;
@@ -17,7 +17,7 @@ using namespace Eigen;
 using namespace TransformationUtilities;
 using namespace InputUtilities;
 using namespace InterfaceUtilities;
-using namespace Nabo;
+// using namespace Nabo;
 
 void PCLViewer::enableErrorCalculation()
 {
@@ -173,7 +173,7 @@ void PCLViewer::updateErrorTable()
             M(1,i) = pt.y;
             M(2,i) = pt.z;
         }
-        NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
+        // NNSearchF* nns = NNSearchF::createKDTreeLinearHeap(M);
         Eigen::MatrixXd pts=Eigen::MatrixXd::Zero(1,3);
         // #pragma omp parallel
         // #pragma omp for
@@ -234,7 +234,7 @@ void PCLViewer::updateErrorTable()
             MatrixXf dists2;
             indices.resize(1, N.cols());
             dists2.resize(1, N.cols());
-            nns->knn(N, indices, dists2, 1, 0, NNSearchF::SORT_RESULTS);
+            // nns->knn(N, indices, dists2, 1, 0, NNSearchF::SORT_RESULTS);
             for(int i=0;i<counter;i++)
             {
                 double distance = sqrt(dists2(0,i));

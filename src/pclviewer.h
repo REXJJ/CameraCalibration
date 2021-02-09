@@ -22,12 +22,12 @@
 // Visualization Toolkit (VTK)
 #include <vtkRenderWindow.h>
 #include "helpers.hpp"
-#include "nabo/nabo.h"
+// #include "nabo/nabo.h"
 
 typedef pcl::PointXYZRGB PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
 
-using namespace Nabo;
+// using namespace Nabo;
 
 namespace Ui
 {
@@ -127,8 +127,8 @@ class PCLViewer : public QMainWindow
         double rotation_resolution_;
         std::vector<std::vector<double>> points_1_;//Points in the target frame
         std::vector<std::vector<double>> points_2_;
-        std::vector<NNSearchF*> nabos_;
-        NNSearchF* kd_tree_nabo_;
+        // std::vector<NNSearchF*> nabos_;
+        // NNSearchF* kd_tree_nabo_;
         bool apply_svd_;
         bool identify_good_points_;
         int z_threshold_;

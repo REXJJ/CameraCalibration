@@ -41,14 +41,14 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <omp.h>
-#include "nabo/nabo.h"
+// #include "nabo/nabo.h"
 
 using namespace std;
 using namespace Eigen;
 using namespace TransformationUtilities;
 using namespace InputUtilities;
 using namespace InterfaceUtilities;
-using namespace Nabo;
+// using namespace Nabo;
 using namespace pcl;
 
 

@@ -1,4 +1,4 @@
-#include "nabo/nabo.h"
+// #include "nabo/nabo.h"
 #include "helpers.hpp"
 #include <pcl/io/ply_io.h>
 #include <boost/property_tree/xml_parser.hpp>
@@ -25,7 +25,7 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/visualization/cloud_viewer.h>
 
-using namespace Nabo;
+// using namespace Nabo;
 using namespace Eigen;
 using namespace std;
 using namespace TransformationUtilities;
